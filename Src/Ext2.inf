@@ -25,6 +25,7 @@
 [Sources]
   Ext2.h
   Ext2.c
+  ComponentName.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -48,9 +49,8 @@
 [Protocols]
   gEfiDiskIoProtocolGuid
   gEfiBlockIoProtocolGuid
+  gEfiBlockIo2ProtocolGuid
   gEfiSimpleFileSystemProtocolGuid
-  gEfiUnicodeCollationProtocolGuid
-  gEfiUnicodeCollation2ProtocolGuid
 
 [Pcd]
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang

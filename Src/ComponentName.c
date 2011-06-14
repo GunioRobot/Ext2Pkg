@@ -185,7 +185,56 @@ Ext2ComponentNameGetControllerName (
 				    OUT CHAR16                                          **ControllerName
 				    )
 {
+  
+  EFI_STATUS Status;
+  EFI_BLOCK_IO_PROTOCOL *BlockIo;
+  EXT2_DEV *Ext2Device;
 
-  return EFI_UNSUPPORTED;   
+  //
+  // This is a device driver, so ChildHandle must be NULL.
+  //
+  if (ChildHandle != NULL) {
+    return EFI_UNSUPPORTED;
+  }
+
+  //
+  // Make sure this driver is currently managing ControllerHandle
+  //
+  Status = EfiTestManagedDevice (
+				 ControllerHandle,
+				 gExt2DriverBinding.DriverBindingHandle,
+				 &gEfiDiskIoProtocolGuid			
+				 );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Get the Block I/O Protocol on Controller
+  //
+  Status = gBS->OpenProtocol (
+			      ControllerHandle,
+			      &gEfiDiskIoProtocolGuid,
+			      (VOID **) &BlockIo,
+			      gExt2DriverBinding.DriverBindingHandle,
+			      ControllerHandle,
+			      EFI_OPEN_PROTOCOL_GET_PROTOCOL
+			      );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Get the Ext2 Controller's Device structure
+  //
+  Ext2Device = EXT2_DEV_FROM_THIS(BlockIo);
+
+  return LookupUnicodeString2 (
+			       Language,
+			       This->SupportedLanguages,
+			       Ext2Device->ControllerNameTable,
+			       ControllerName,
+			       (BOOLEAN) (This == &gExt2ComponentName)
+			       );
 }
 

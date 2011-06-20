@@ -91,8 +91,28 @@ Ext2Supported (
 			      ControllerHandle,
 			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL
 			      );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+  
+  Status = gBS->OpenProtocol (
+			      ControllerHandle,
+			      &gEfiBlockIo2ProtocolGuid,
+			      NULL,
+			      This->DriverBindingHandle,
+			      ControllerHandle,
+			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL
+			      );
+  if (EFI_ERROR (Status)) {
+    //
+    // According to UEFI Spec 2.3.1, if a driver is written for a disk device,
+    // then the EFI_BLOCK_IO_PROTOCOL and EFI_BLOCK_IO2_PROTOCOL must be implemented.
+    // Currently, SCSI disk driver only proce the EFI_BLOCK_IO_PROTOCOL, it will
+    // not be updated until the non blocking SCSI Pass Thru Protocol is provided.
+    // If there is no EFI_BLOCK_IO2_PROTOCOL, skip here.
+  }
 
-  return Status;
+  return EFI_SUCCESS;
 }
 
 
@@ -123,6 +143,7 @@ Ext2Start (
   EFI_DISK_IO_PROTOCOL      *DiskIo;
   BOOLEAN                   MediaPresent;
   EFI_TPL                   OldTpl;
+  EXT2_DEV                  *Filesystem; 
 
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
 
@@ -165,6 +186,11 @@ Ext2Start (
 
     // install ext2 handle if supported by the media
     // still need to code
+    
+    Filesystem = AllocateZeroPool (sizeof (EXT2_DEV));
+    if (Filesystem == NULL) {
+      return EFI_OUT_OF_RESOURCES;
+    }
 
   }
   //
@@ -235,7 +261,7 @@ Ext2Stop (
 			      );
   if (!EFI_ERROR (Status)) {
     
-    Private = EXT2_FILESYSTEM_FROM_DEV (FileSystem);
+    Private = EXT2_DEV_FROM_FILESYSTEM (FileSystem);
     BlockIo = EXT2_DEV_FROM_THIS (FileSystem);
 
     //

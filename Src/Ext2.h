@@ -38,7 +38,7 @@ typedef struct {
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL Filesystem;
 
   UINT32 Signature;
-  
+
   EFI_HANDLE Handle;
 
   EFI_DISK_IO_PROTOCOL DiskIo;
@@ -49,7 +49,7 @@ typedef struct {
 } EXT2_DEV;
 
 #define EXT2_DEV_FROM_THIS(a) CR (a, EXT2_DEV, BlockIo, EXT2_PRIVATE_DATA_SIGNATURE)
-#define EXT2_FILESYSTEM_FROM_DEV(a) CR (a, EXT2_DEV, Filesystem, EXT2_PRIVATE_DATA_SIGNATURE)
+#define EXT2_DEV_FROM_FILESYSTEM(a) CR (a, EXT2_DEV, Filesystem, EXT2_PRIVATE_DATA_SIGNATURE)
 
 //
 // Global Variables

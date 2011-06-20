@@ -254,18 +254,16 @@ Ext2Stop (
     } else {
       return Status;
     }
-
-    Status = gBS->CloseProtocol (
-			ControllerHandle,
-			&gEfiDiskIoProtocolGuid,
-			This->DriverBindingHandle,
-			ControllerHandle
-			);
+  }
+  Status = gBS->CloseProtocol (
+			       ControllerHandle,
+			       &gEfiDiskIoProtocolGuid,
+			       This->DriverBindingHandle,
+			       ControllerHandle
+			       );
     
-    return Status;
-  
+  return Status;
 }
-  
 
 /**
    The user Entry Point for module Ext2. The user code start with this function.

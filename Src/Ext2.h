@@ -81,7 +81,7 @@ extern EFI_COMPONENT_NAME2_PROTOCOL gPartitionComponentName2;
 **/
 EFI_STATUS
 EFIAPI
-Ext2DriverBindingSupported (
+Ext2Supported (
 			    IN EFI_DRIVER_BINDING_PROTOCOL  *This,
 			    IN EFI_HANDLE                   ControllerHandle,
 			    IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
@@ -104,7 +104,7 @@ Ext2DriverBindingSupported (
 **/
 EFI_STATUS
 EFIAPI
-Ext2DriverBindingStart (
+Ext2Start (
 			IN EFI_DRIVER_BINDING_PROTOCOL  *This,
 			IN EFI_HANDLE                   ControllerHandle,
 			IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
@@ -126,7 +126,7 @@ Ext2DriverBindingStart (
 **/
 EFI_STATUS
 EFIAPI
-Ext2DriverBindingStop (
+Ext2Stop (
 		      IN  EFI_DRIVER_BINDING_PROTOCOL   *This,
 		      IN  EFI_HANDLE                    ControllerHandle,
 		      IN  UINTN                         NumberOfChildren,

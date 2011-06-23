@@ -260,4 +260,6 @@ Ext2ComponentNameGetControllerName (
 				    OUT CHAR16                                          **ControllerName
 				    );
 
+#endif
+
 

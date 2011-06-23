@@ -230,9 +230,7 @@ Ext2Stop (
 	  )
 {
   EFI_STATUS              Status;
-  UINTN                   Index;
   EFI_BLOCK_IO_PROTOCOL   *BlockIo;
-  EFI_DISK_IO_PROTOCOL    *DiskIo;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EXT2_DEV *Private;
 

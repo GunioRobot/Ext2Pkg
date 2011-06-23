@@ -57,7 +57,7 @@ typedef struct {
 //
 extern EFI_DRIVER_BINDING_PROTOCOL gExt2DriverBinding;
 extern EFI_COMPONENT_NAME_PROTOCOL gExt2ComponentName;
-extern EFI_COMPONENT_NAME2_PROTOCOL gPartitionComponentName2;
+extern EFI_COMPONENT_NAME2_PROTOCOL gExt2ComponentName2;
 
 //
 

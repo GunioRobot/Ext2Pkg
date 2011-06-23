@@ -236,6 +236,12 @@ Ext2Stop (
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
   EXT2_DEV *Private;
 
+  BlockIo = NULL;
+  Private = NULL;
+
+  //
+  // Get our context back
+  //
   Status = gBS->OpenProtocol (
 			      ControllerHandle,
 			      &gEfiSimpleFileSystemProtocolGuid,
@@ -261,18 +267,24 @@ Ext2Stop (
 						       NULL
 						       );
     if (!EFI_ERROR (Status)) {
-      FreePool (Private); 
-    } else {
-      return Status;
-    }
-  }
-  Status = gBS->CloseProtocol (
-			       ControllerHandle,
-			       &gEfiDiskIoProtocolGuid,
-			       This->DriverBindingHandle,
-			       ControllerHandle
-			       );
-    
+      Status = gBS->CloseProtocol (
+				   ControllerHandle,
+				   &gEfiBlockIoProtocolGuid,
+				   This->DriverBindingHandle,
+				   ControllerHandle
+				   );
+      if (!EFI_ERROR (Status)) {
+	Status = gBS->CloseProtocol (
+				     ControllerHandle,
+				     &gEfiDiskIoProtocolGuid,
+				     This->DriverBindingHandle,
+				     ControllerHandle,
+				     );	
+      }
+      
+      FreePool (Private);
+    } 
+
   return Status;
 }
 

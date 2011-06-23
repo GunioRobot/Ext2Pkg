@@ -284,7 +284,7 @@ Ext2Stop (
       
       FreePool (Private);
     } 
-
+  }
   return Status;
 }
 

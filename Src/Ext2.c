@@ -278,7 +278,7 @@ Ext2Stop (
 				     ControllerHandle,
 				     &gEfiDiskIoProtocolGuid,
 				     This->DriverBindingHandle,
-				     ControllerHandle,
+				     ControllerHandle
 				     );	
       }
       

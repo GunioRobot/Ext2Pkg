@@ -1,6 +1,8 @@
 /** @file
   Ext2 Driver Reference EDKII Module  
 
+  Based on MdeModulePkg/Universal/Disk/PartitionDxe/
+
   Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin.codejunkie@gmail.com>
 
   This program and the accompanying materials
@@ -33,9 +35,9 @@ EFI_DRIVER_BINDING_PROTOCOL gExt2DriverBinding = {
   Test to see if this driver supports ControllerHandle. Any ControllerHandle
   than contains a BlockIo and DiskIo protocol can be supported.
 
-  @param  This                Protocol instance pointer.
-  @param  ControllerHandle    Handle of device to test.
-  @param  RemainingDevicePath Not used.
+  @param[in]  This                Protocol instance pointer.
+  @param[in]  ControllerHandle    Handle of device to test.
+  @param[in]  RemainingDevicePath Not used.
 
   @retval EFI_SUCCESS         This driver supports this device.
   @retval EFI_ALREADY_STARTED This driver is already running on this device.
@@ -94,24 +96,7 @@ Ext2Supported (
   if (EFI_ERROR (Status)) {
     return Status;
   }
-  
-  Status = gBS->OpenProtocol (
-			      ControllerHandle,
-			      &gEfiBlockIo2ProtocolGuid,
-			      NULL,
-			      This->DriverBindingHandle,
-			      ControllerHandle,
-			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL
-			      );
-  if (EFI_ERROR (Status)) {
-    //
-    // According to UEFI Spec 2.3.1, if a driver is written for a disk device,
-    // then the EFI_BLOCK_IO_PROTOCOL and EFI_BLOCK_IO2_PROTOCOL must be implemented.
-    // Currently, SCSI disk driver only proce the EFI_BLOCK_IO_PROTOCOL, it will
-    // not be updated until the non blocking SCSI Pass Thru Protocol is provided.
-    // If there is no EFI_BLOCK_IO2_PROTOCOL, skip here.
-  }
-
+   
   return EFI_SUCCESS;
 }
 
@@ -120,9 +105,9 @@ Ext2Supported (
   Start this driver on ControllerHandle by opening a Block IO and Disk IO
   protocol.
 
-  @param  This                 Protocol instance pointer.
-  @param  ControllerHandle     Handle of device to bind driver to.
-  @param  RemainingDevicePath  Not used.
+  @param[in]  This                 Protocol instance pointer.
+  @param[in]  ControllerHandle     Handle of device to bind driver to.
+  @param[in]  RemainingDevicePath  Not used.
 
   @retval EFI_SUCCESS          This driver is added to ControllerHandle.
   @retval EFI_ALREADY_STARTED  This driver is already running on ControllerHandle.
@@ -226,10 +211,10 @@ Exit:
 /**
   Stop this driver on ControllerHandle.
 
-  @param  This              Protocol instance pointer.
-  @param  ControllerHandle  Handle of device to stop driver on.
-  @param  NumberOfChildren  Not used.
-  @param  ChildHandleBuffer Not used.
+  @param[in]  This              Protocol instance pointer.
+  @param[in]  ControllerHandle  Handle of device to stop driver on.
+  @param[in]  NumberOfChildren  Not used.
+  @param[in]  ChildHandleBuffer Not used.
 
   @retval EFI_SUCCESS       This driver is removed ControllerHandle.
   @retval other             This driver was not removed from this device.

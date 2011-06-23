@@ -252,8 +252,8 @@ Ext2Stop (
 			      );
   if (!EFI_ERROR (Status)) {
     
-    Private = EXT2_DEV_FROM_FILESYSTEM (FileSystem);
-    BlockIo = EXT2_DEV_FROM_THIS (FileSystem);
+    Private = EXT2_DEV_FROM_FILESYSTEM(FileSystem);
+    BlockIo = &Private->BlockIo;
 
     //
     // All Software protocols have be freed from the handle so remove it.

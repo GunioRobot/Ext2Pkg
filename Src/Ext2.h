@@ -18,6 +18,7 @@
 #include <Uefi.h>
 #include <Protocol/BlockIo.h>
 #include <Protocol/BlockIo2.h>
+#include <Protocol/SimpleFileSystem.h>
 #include <Guid/Gpt.h>
 #include <Protocol/ComponentName.h>
 #include <Protocol/DevicePath.h>

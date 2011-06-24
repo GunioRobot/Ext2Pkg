@@ -66,11 +66,15 @@ Ext2Supported (
 			      ControllerHandle,
 			      EFI_OPEN_PROTOCOL_BY_DRIVER
 			      );
+
   if (Status == EFI_ALREADY_STARTED) {
+    DEBUG((EFI_D_INFO, "Ext2Supported: EFI_ALREADY_STARTED\n"));
     return EFI_SUCCESS;
   }
 
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2Supported: Error open protocol DiskIo\n"));
+    DEBUG((EFI_D_ERROR, "Ext2Supported: Error %r\n", Status));
     return Status;
   }
   //
@@ -94,9 +98,11 @@ Ext2Supported (
 			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL
 			      );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2Supported: Error open protocol BlockIo\n"));
     return Status;
   }
-   
+  
+  DEBUG((EFI_D_INFO, "Ext2Supported\n"));
   return EFI_SUCCESS;
 }
 
@@ -141,6 +147,7 @@ Ext2Start (
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL
                   );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
     goto Exit;
   }
 
@@ -152,7 +159,8 @@ Ext2Start (
                   ControllerHandle,
                   EFI_OPEN_PROTOCOL_BY_DRIVER
                   );
- if (EFI_ERROR (Status)) {
+  if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
     goto Exit;
   }
 
@@ -174,6 +182,7 @@ Ext2Start (
     
     Filesystem = AllocateZeroPool (sizeof (EXT2_DEV));
     if (Filesystem == NULL) {
+      DEBUG((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
       return EFI_OUT_OF_RESOURCES;
     }
 
@@ -194,6 +203,9 @@ Ext2Start (
       !EFI_ERROR (OpenStatus)     &&
       Status != EFI_MEDIA_CHANGED &&
       !(MediaPresent && Status == EFI_NO_MEDIA)) {
+    
+    DEBUG((EFI_D_INFO, "Ext2Start: Error EFI_MEDIA_CHANGED\n"));
+    
     gBS->CloseProtocol (
           ControllerHandle,
           &gEfiDiskIoProtocolGuid,
@@ -204,6 +216,7 @@ Ext2Start (
 
 Exit:
   gBS->RestoreTPL (OldTpl);
+  DEBUG((EFI_D_ERROR, "Ext2Start: %r\n", Status));
   return Status;
 }
 
@@ -249,7 +262,9 @@ Ext2Stop (
 			      EFI_OPEN_PROTOCOL_GET_PROTOCOL
 			      );
   if (!EFI_ERROR (Status)) {
-    
+
+    DEBUG((EFI_D_INFO, "Ext2Stop: Error open protocol SimpleFileSystem\n"));
+
     Private = EXT2_DEV_FROM_FILESYSTEM(FileSystem);
     BlockIo = &Private->BlockIo;
 
@@ -265,6 +280,9 @@ Ext2Stop (
 						       NULL
 						       );
     if (!EFI_ERROR (Status)) {
+
+      DEBUG((EFI_D_INFO, "Ext2Stop: Error uninstall multiple protocol interfaces\n"));
+      
       Status = gBS->CloseProtocol (
 				   ControllerHandle,
 				   &gEfiBlockIoProtocolGuid,
@@ -272,6 +290,9 @@ Ext2Stop (
 				   ControllerHandle
 				   );
       if (!EFI_ERROR (Status)) {
+	
+	DEBUG((EFI_D_INFO, "Ext2Stop: Error close protocol BlockIo\n"));
+
 	Status = gBS->CloseProtocol (
 				     ControllerHandle,
 				     &gEfiDiskIoProtocolGuid,
@@ -283,6 +304,9 @@ Ext2Stop (
       FreePool (Private);
     } 
   }
+
+  DEBUG((EFI_D_ERROR, "Ext2Stop: %r\n", Status));
+
   return Status;
 }
 

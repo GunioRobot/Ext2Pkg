@@ -97,13 +97,19 @@ Ext2ComponentNameGetDriverName (
   OUT CHAR16                       **DriverName
   )
 {
-  return LookupUnicodeString2 (
-           Language,
-           This->SupportedLanguages,
-           mExt2DriverNameTable,
-           DriverName,
-           (BOOLEAN)(This == &gExt2ComponentName)
-           );
+  EFI_STATUS Status;
+
+  Status = LookupUnicodeString2 (
+				 Language,
+				 This->SupportedLanguages,
+				 mExt2DriverNameTable,
+				 DriverName,
+				 (BOOLEAN)(This == &gExt2ComponentName)
+				 );
+
+  DEBUG((EFI_D_ERROR, "Ext2ComponentNameGetDriverName: %r\n", Status));
+
+  return Status;
 }
 
 
@@ -194,6 +200,7 @@ Ext2ComponentNameGetControllerName (
   // This is a device driver, so ChildHandle must be NULL.
   //
   if (ChildHandle != NULL) {
+    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error ChildHandle!=NULL\n"));
     return EFI_UNSUPPORTED;
   }
 
@@ -206,6 +213,7 @@ Ext2ComponentNameGetControllerName (
 				 &gEfiDiskIoProtocolGuid			
 				 );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error test managed device\n"));
     return Status;
   }
 
@@ -214,13 +222,14 @@ Ext2ComponentNameGetControllerName (
   //
   Status = gBS->OpenProtocol (
 			      ControllerHandle,
-			      &gEfiDiskIoProtocolGuid,
+			      &gEfiBlockIoProtocolGuid,
 			      (VOID **) &BlockIo,
 			      gExt2DriverBinding.DriverBindingHandle,
 			      ControllerHandle,
 			      EFI_OPEN_PROTOCOL_GET_PROTOCOL
 			      );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error open protocol BlockIo\n"));
     return Status;
   }
 
@@ -229,12 +238,16 @@ Ext2ComponentNameGetControllerName (
   //
   Ext2Device = EXT2_DEV_FROM_THIS(BlockIo);
 
-  return LookupUnicodeString2 (
-			       Language,
-			       This->SupportedLanguages,
-			       Ext2Device->ControllerNameTable,
-			       ControllerName,
-			       (BOOLEAN) (This == &gExt2ComponentName)
-			       );
+  Status = LookupUnicodeString2 (
+				 Language,
+				 This->SupportedLanguages,
+				 Ext2Device->ControllerNameTable,
+				 ControllerName,
+				 (BOOLEAN) (This == &gExt2ComponentName)
+				 );
+
+  DEBUG((EFI_D_ERROR, "Ext2ComponentNameGetControllerName: %r\n", Status));
+  
+  return Status;
 }
 

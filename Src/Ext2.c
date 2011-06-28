@@ -134,7 +134,7 @@ Ext2Start (
   EFI_DISK_IO_PROTOCOL      *DiskIo;
   BOOLEAN                   MediaPresent;
   EFI_TPL                   OldTpl;
-  EXT2_DEV                  *Filesystem; 
+  EXT2_DEV                  *Private; 
 
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
 
@@ -180,12 +180,13 @@ Ext2Start (
     // install ext2 handle if supported by the media
     // still need to code
     
-    Filesystem = AllocateZeroPool (sizeof (EXT2_DEV));
-    if (Filesystem == NULL) {
+    Private = AllocateZeroPool (sizeof (EXT2_DEV));
+    if (Private == NULL) {
       DEBUG((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
       return EFI_OUT_OF_RESOURCES;
     }
 
+    
   }
   //
   // In the case that the driver is already started (OpenStatus == EFI_ALREADY_STARTED),

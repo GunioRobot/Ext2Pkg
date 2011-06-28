@@ -186,6 +186,10 @@ Ext2Start (
       return EFI_OUT_OF_RESOURCES;
     }
 
+    Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
+    Private->DiskIo = DiskIo;
+    Private->BlockIo = BlockIo;
+    Private->Filesystem.OpenVolume = Ext2OpenVolume;
     
   }
   //

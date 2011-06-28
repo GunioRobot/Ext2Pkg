@@ -42,8 +42,8 @@ typedef struct {
 
   EFI_HANDLE Handle;
 
-  EFI_DISK_IO_PROTOCOL DiskIo;
-  EFI_BLOCK_IO_PROTOCOL BlockIo;
+  EFI_DISK_IO_PROTOCOL *DiskIo;
+  EFI_BLOCK_IO_PROTOCOL *BlockIo;
 
   EFI_UNICODE_STRING_TABLE *ControllerNameTable;
 

@@ -181,7 +181,7 @@ struct ext2fs {
 	CHAR8   e2fs_vname[16];		/* volume name */
 	CHAR8   e2fs_fsmnt[64]; 	/* name mounted on */
 	UINT32  e2fs_algo;		/* For compression */
-	UINT32  e2fs_prealloc;		/* # of blocks to preallocate */
+	UINT8   e2fs_prealloc;		/* # of blocks to preallocate */
 	UINT8   e2fs_dir_prealloc;	/* # of blocks to preallocate for dir */
 	UINT16  e2fs_reserved_ngdb; 	/* # of reserved gd blocks for resize */
 	UINT32  reserved2[204];

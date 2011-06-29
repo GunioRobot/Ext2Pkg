@@ -177,6 +177,13 @@ Ext2Start (
   if (BlockIo->Media->MediaPresent ||
       (BlockIo->Media->RemovableMedia && !BlockIo->Media->LogicalPartition)) {
 
+    Status = Ext2CheckSB (DiskIo, BlockIo->Media->MediaId);
+    
+    if (EFI_ERROR (Status)) {
+	DEBUG((EFI_D_INFO, "Ext2Start: Error superblock\n"));
+	goto Exit;
+    }
+
     // install ext2 handle if supported by the media
     // still need to code
     

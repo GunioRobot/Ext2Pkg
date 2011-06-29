@@ -25,14 +25,14 @@ Ext2CheckSB (
       return EFI_OUT_OF_RESOURCES;
     }
     
-    Status = DiskIo->ReadDisk (DiskIo, MediaId, 0, sizeof (struct ext2fs), Ext2SuperBlock);
+    Status = DiskIo->ReadDisk (DiskIo, MediaId, 1024, sizeof (struct ext2fs), &Ext2SuperBlock);
 
     if (EFI_ERROR (Status)) {
 	DEBUG ((EFI_D_INFO, "Ext2CheckSB: error reading ext2 superblock\n"));
 	return Status;
     }
-    
-    if (Ext2SuperBlock->e2fs_magic != E2FS_MAGIC) {
+        
+    if (Ext2SuperBlock.e2fs_magic != E2FS_MAGIC) {
 	DEBUG ((EFI_D_INFO, "Ext2CheckSB: error not ext2 partition\n"));
 	return EFI_UNSUPPORTED;
     }

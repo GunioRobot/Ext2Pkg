@@ -44,65 +44,56 @@ EFI_DRIVER_BINDING_PROTOCOL gExt2DriverBinding = {
   @retval other               This driver does not support this device.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2Supported (
-	       IN EFI_DRIVER_BINDING_PROTOCOL  *This,
-	       IN EFI_HANDLE                   ControllerHandle,
-	       IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
-	       )
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_DEVICE_PATH_PROTOCOL * RemainingDevicePath
+)
 {
-  EFI_STATUS                Status;
-  EFI_DISK_IO_PROTOCOL      *DiskIo;
+  EFI_STATUS      Status;
+  EFI_DISK_IO_PROTOCOL *DiskIo;
 
   //
   // Open the IO Abstraction(s) needed to perform the supported test
   //
-  Status = gBS->OpenProtocol (
-			      ControllerHandle,
+  Status = gBS->OpenProtocol (ControllerHandle,
 			      &gEfiDiskIoProtocolGuid,
-			      (VOID **) &DiskIo,
+			      (VOID **) & DiskIo,
 			      This->DriverBindingHandle,
-			      ControllerHandle,
-			      EFI_OPEN_PROTOCOL_BY_DRIVER
-			      );
+			      ControllerHandle, EFI_OPEN_PROTOCOL_BY_DRIVER);
 
   if (Status == EFI_ALREADY_STARTED) {
-    DEBUG((EFI_D_INFO, "Ext2Supported: EFI_ALREADY_STARTED\n"));
+    DEBUG ((EFI_D_INFO, "Ext2Supported: EFI_ALREADY_STARTED\n"));
     return EFI_SUCCESS;
   }
 
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2Supported: Error open protocol DiskIo\n"));
-    DEBUG((EFI_D_ERROR, "Ext2Supported: Error %r\n", Status));
+    DEBUG ((EFI_D_INFO, "Ext2Supported: Error open protocol DiskIo\n"));
+    DEBUG ((EFI_D_ERROR, "Ext2Supported: Error %r\n", Status));
     return Status;
   }
   //
   // Close the I/O Abstraction(s) used to perform the supported test
   //
-  gBS->CloseProtocol (
-		      ControllerHandle,
+  gBS->CloseProtocol (ControllerHandle,
 		      &gEfiDiskIoProtocolGuid,
-		      This->DriverBindingHandle,
-		      ControllerHandle
-		      );
+		      This->DriverBindingHandle, ControllerHandle);
   //
   // Open the IO Abstraction(s) needed to perform the supported test
   //
-  Status = gBS->OpenProtocol (
-			      ControllerHandle,
+  Status = gBS->OpenProtocol (ControllerHandle,
 			      &gEfiBlockIoProtocolGuid,
 			      NULL,
 			      This->DriverBindingHandle,
 			      ControllerHandle,
-			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL
-			      );
+			      EFI_OPEN_PROTOCOL_TEST_PROTOCOL);
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2Supported: Error open protocol BlockIo\n"));
+    DEBUG ((EFI_D_INFO, "Ext2Supported: Error open protocol BlockIo\n"));
     return Status;
   }
-  
-  DEBUG((EFI_D_INFO, "Ext2Supported\n"));
+
+  DEBUG ((EFI_D_INFO, "Ext2Supported\n"));
   return EFI_SUCCESS;
 }
 
@@ -120,47 +111,40 @@ Ext2Supported (
   @retval other                This driver does not support this device.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2Start (
-  IN EFI_DRIVER_BINDING_PROTOCOL  *This,
-  IN EFI_HANDLE                   ControllerHandle,
-  IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
-  )
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_DEVICE_PATH_PROTOCOL * RemainingDevicePath
+)
 {
-  EFI_STATUS                Status;
-  EFI_STATUS                OpenStatus;
-  EFI_BLOCK_IO_PROTOCOL     *BlockIo;
-  EFI_DISK_IO_PROTOCOL      *DiskIo;
-  BOOLEAN                   MediaPresent;
-  EFI_TPL                   OldTpl;
-  EXT2_DEV                  *Private; 
+  EFI_STATUS      Status;
+  EFI_STATUS      OpenStatus;
+  EFI_BLOCK_IO_PROTOCOL *BlockIo;
+  EFI_DISK_IO_PROTOCOL *DiskIo;
+  BOOLEAN         MediaPresent;
+  EFI_TPL         OldTpl;
+  EXT2_DEV       *Private;
 
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
 
-  Status = gBS->OpenProtocol (
-                  ControllerHandle,
-                  &gEfiBlockIoProtocolGuid,
-                  (VOID **) &BlockIo,
-                  This->DriverBindingHandle,
-                  ControllerHandle,
-                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
-                  );
+  Status = gBS->OpenProtocol (ControllerHandle,
+			      &gEfiBlockIoProtocolGuid,
+			      (VOID **) & BlockIo,
+			      This->DriverBindingHandle,
+			      ControllerHandle, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
+    DEBUG ((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
     goto Exit;
   }
 
-  Status = gBS->OpenProtocol (
-                  ControllerHandle,
-                  &gEfiDiskIoProtocolGuid,
-                  (VOID **) &DiskIo,
-                  This->DriverBindingHandle,
-                  ControllerHandle,
-                  EFI_OPEN_PROTOCOL_BY_DRIVER
-                  );
+  Status = gBS->OpenProtocol (ControllerHandle,
+			      &gEfiDiskIoProtocolGuid,
+			      (VOID **) & DiskIo,
+			      This->DriverBindingHandle,
+			      ControllerHandle, EFI_OPEN_PROTOCOL_BY_DRIVER);
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
+    DEBUG ((EFI_D_INFO, "Ext2Start: Error open protocol BlockIo\n"));
     goto Exit;
   }
 
@@ -178,18 +162,17 @@ Ext2Start (
       (BlockIo->Media->RemovableMedia && !BlockIo->Media->LogicalPartition)) {
 
     Status = Ext2CheckSB (DiskIo, BlockIo->Media->MediaId);
-    
-    if (EFI_ERROR (Status)) {
-	DEBUG((EFI_D_INFO, "Ext2Start: Error superblock\n"));
-	goto Exit;
-    }
 
+    if (EFI_ERROR (Status)) {
+      DEBUG ((EFI_D_INFO, "Ext2Start: Error superblock\n"));
+      goto Exit;
+    }
     // install ext2 handle if supported by the media
     // still need to code
-    
+
     Private = AllocateZeroPool (sizeof (EXT2_DEV));
     if (Private == NULL) {
-      DEBUG((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
+      DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
       return EFI_OUT_OF_RESOURCES;
     }
 
@@ -197,7 +180,7 @@ Ext2Start (
     Private->DiskIo = DiskIo;
     Private->BlockIo = BlockIo;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;
-    
+
   }
   //
   // In the case that the driver is already started (OpenStatus == EFI_ALREADY_STARTED),
@@ -211,24 +194,21 @@ Ext2Start (
   // when this happen. The "media change" case includes either the status is
   // EFI_MEDIA_CHANGED or it is a "media" to "no media" change. 
   //  
-  if (EFI_ERROR (Status)          &&
-      !EFI_ERROR (OpenStatus)     &&
+  if (EFI_ERROR (Status) &&
+      !EFI_ERROR (OpenStatus) &&
       Status != EFI_MEDIA_CHANGED &&
       !(MediaPresent && Status == EFI_NO_MEDIA)) {
-    
-    DEBUG((EFI_D_INFO, "Ext2Start: Error EFI_MEDIA_CHANGED\n"));
-    
-    gBS->CloseProtocol (
-          ControllerHandle,
-          &gEfiDiskIoProtocolGuid,
-          This->DriverBindingHandle,
-          ControllerHandle
-          );
+
+    DEBUG ((EFI_D_INFO, "Ext2Start: Error EFI_MEDIA_CHANGED\n"));
+
+    gBS->CloseProtocol (ControllerHandle,
+			&gEfiDiskIoProtocolGuid,
+			This->DriverBindingHandle, ControllerHandle);
   }
 
 Exit:
   gBS->RestoreTPL (OldTpl);
-  DEBUG((EFI_D_ERROR, "Ext2Start: %r\n", Status));
+  DEBUG ((EFI_D_ERROR, "Ext2Start: %r\n", Status));
   return Status;
 }
 
@@ -245,19 +225,18 @@ Exit:
   @retval other             This driver was not removed from this device.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2Stop (
-	  IN  EFI_DRIVER_BINDING_PROTOCOL   *This,
-	  IN  EFI_HANDLE                    ControllerHandle,
-	  IN  UINTN                         NumberOfChildren,
-	  IN  EFI_HANDLE                    *ChildHandleBuffer
-	  )
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN UINTN NumberOfChildren,
+  IN EFI_HANDLE * ChildHandleBuffer
+)
 {
-  EFI_STATUS              Status;
-  EFI_BLOCK_IO_PROTOCOL   *BlockIo;
+  EFI_STATUS      Status;
+  EFI_BLOCK_IO_PROTOCOL *BlockIo;
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  EXT2_DEV *Private;
+  EXT2_DEV       *Private;
 
   BlockIo = NULL;
   Private = NULL;
@@ -265,19 +244,16 @@ Ext2Stop (
   //
   // Get our context back
   //
-  Status = gBS->OpenProtocol (
-			      ControllerHandle,
+  Status = gBS->OpenProtocol (ControllerHandle,
 			      &gEfiSimpleFileSystemProtocolGuid,
-			      (VOID **) &FileSystem,
+			      (VOID **) & FileSystem,
 			      This->DriverBindingHandle,
-			      ControllerHandle,
-			      EFI_OPEN_PROTOCOL_GET_PROTOCOL
-			      );
+			      ControllerHandle, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
   if (!EFI_ERROR (Status)) {
 
-    DEBUG((EFI_D_INFO, "Ext2Stop: Error open protocol SimpleFileSystem\n"));
+    DEBUG ((EFI_D_INFO, "Ext2Stop: Error open protocol SimpleFileSystem\n"));
 
-    Private = EXT2_DEV_FROM_FILESYSTEM(FileSystem);
+    Private = EXT2_DEV_FROM_FILESYSTEM (FileSystem);
     BlockIo = Private->BlockIo;
 
     //
@@ -285,39 +261,33 @@ Ext2Stop (
     //
     BlockIo->FlushBlocks (BlockIo);
 
-    Status = gBS->UninstallMultipleProtocolInterfaces (
-						       Private->Handle,
+    Status = gBS->UninstallMultipleProtocolInterfaces (Private->Handle,
 						       &gEfiSimpleFileSystemProtocolGuid,
 						       &Private->Filesystem,
-						       NULL
-						       );
+						       NULL);
     if (!EFI_ERROR (Status)) {
 
-      DEBUG((EFI_D_INFO, "Ext2Stop: Error uninstall multiple protocol interfaces\n"));
-      
-      Status = gBS->CloseProtocol (
-				   ControllerHandle,
-				   &gEfiBlockIoProtocolGuid,
-				   This->DriverBindingHandle,
-				   ControllerHandle
-				   );
-      if (!EFI_ERROR (Status)) {
-	
-	DEBUG((EFI_D_INFO, "Ext2Stop: Error close protocol BlockIo\n"));
+      DEBUG ((EFI_D_INFO,
+	      "Ext2Stop: Error uninstall multiple protocol interfaces\n"));
 
-	Status = gBS->CloseProtocol (
-				     ControllerHandle,
+      Status = gBS->CloseProtocol (ControllerHandle,
+				   &gEfiBlockIoProtocolGuid,
+				   This->DriverBindingHandle, ControllerHandle);
+      if (!EFI_ERROR (Status)) {
+
+	DEBUG ((EFI_D_INFO, "Ext2Stop: Error close protocol BlockIo\n"));
+
+	Status = gBS->CloseProtocol (ControllerHandle,
 				     &gEfiDiskIoProtocolGuid,
 				     This->DriverBindingHandle,
-				     ControllerHandle
-				     );	
+				     ControllerHandle);
       }
-      
+
       FreePool (Private);
-    } 
+    }
   }
 
-  DEBUG((EFI_D_ERROR, "Ext2Stop: %r\n", Status));
+  DEBUG ((EFI_D_ERROR, "Ext2Stop: %r\n", Status));
 
   return Status;
 }
@@ -332,30 +302,25 @@ Ext2Stop (
    @retval other            Some error occurs when executing this entry point.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2EntryPoint (
-		IN EFI_HANDLE ImageHandle,
-		IN EFI_SYSTEM_TABLE *SystemTable
-		)
+  IN EFI_HANDLE ImageHandle,
+  IN EFI_SYSTEM_TABLE * SystemTable
+)
 {
-  EFI_STATUS Status;
+  EFI_STATUS      Status;
 
   //
   // Install driver model protocol(s).
   //
 
-  Status = EfiLibInstallDriverBindingComponentName2 (
-						     ImageHandle,
+  Status = EfiLibInstallDriverBindingComponentName2 (ImageHandle,
 						     SystemTable,
 						     &gExt2DriverBinding,
 						     ImageHandle,
 						     &gExt2ComponentName,
-						     &gExt2ComponentName2
-						     );
+						     &gExt2ComponentName2);
   ASSERT_EFI_ERROR (Status);
 
   return Status;
 }
-
-

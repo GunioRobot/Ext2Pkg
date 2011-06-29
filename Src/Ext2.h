@@ -37,9 +37,9 @@
 typedef struct {
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL Filesystem;
 
-  UINT32 Signature;
+  UINT32          Signature;
 
-  EFI_HANDLE Handle;
+  EFI_HANDLE      Handle;
 
   EFI_DISK_IO_PROTOCOL *DiskIo;
   EFI_BLOCK_IO_PROTOCOL *BlockIo;
@@ -78,13 +78,11 @@ extern EFI_COMPONENT_NAME2_PROTOCOL gExt2ComponentName2;
   @retval other               This driver does not support this device
 
 **/
-EFI_STATUS
-EFIAPI
-Ext2Supported (
-			    IN EFI_DRIVER_BINDING_PROTOCOL  *This,
-			    IN EFI_HANDLE                   ControllerHandle,
-			    IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
-			    );
+EFI_STATUS EFIAPI Ext2Supported (
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_DEVICE_PATH_PROTOCOL * RemainingDevicePath
+);
 
 /**
   Start this driver on ControllerHandle by opening a Block IO and Disk IO
@@ -101,13 +99,11 @@ Ext2Supported (
   @retval other                This driver does not support this device
 
 **/
-EFI_STATUS
-EFIAPI
-Ext2Start (
-			IN EFI_DRIVER_BINDING_PROTOCOL  *This,
-			IN EFI_HANDLE                   ControllerHandle,
-			IN EFI_DEVICE_PATH_PROTOCOL     *RemainingDevicePath
-			);
+EFI_STATUS EFIAPI Ext2Start (
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_DEVICE_PATH_PROTOCOL * RemainingDevicePath
+);
 
 /**
   Stop this driver on ControllerHandle. Support stopping any child handles
@@ -123,22 +119,18 @@ Ext2Start (
   @retval other             This driver was not removed from this device
 
 **/
-EFI_STATUS
-EFIAPI
-Ext2Stop (
-		      IN  EFI_DRIVER_BINDING_PROTOCOL   *This,
-		      IN  EFI_HANDLE                    ControllerHandle,
-		      IN  UINTN                         NumberOfChildren,
-		      IN  EFI_HANDLE                    *ChildHandleBuffer
-		      );
+EFI_STATUS EFIAPI Ext2Stop (
+  IN EFI_DRIVER_BINDING_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN UINTN NumberOfChildren,
+  IN EFI_HANDLE * ChildHandleBuffer
+);
 
 
-EFI_STATUS
-EFIAPI
-Ext2OpenVolume (
-  IN  EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  *This,
-  OUT EFI_FILE_PROTOCOL                **File
-  );
+EFI_STATUS EFIAPI Ext2OpenVolume (
+  IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL * This,
+  OUT EFI_FILE_PROTOCOL ** File
+);
 
 
 //
@@ -182,13 +174,11 @@ Ext2OpenVolume (
   @retval EFI_UNSUPPORTED       The driver specified by This does not support
   the language specified by Language.
 **/
-EFI_STATUS
-EFIAPI
-Ext2ComponentNameGetDriverName (
-				IN  EFI_COMPONENT_NAME_PROTOCOL  *This,
-				IN  CHAR8                        *Language,
-				OUT CHAR16                       **DriverName
-				);
+EFI_STATUS EFIAPI Ext2ComponentNameGetDriverName (
+  IN EFI_COMPONENT_NAME_PROTOCOL * This,
+  IN CHAR8 * Language,
+  OUT CHAR16 ** DriverName
+);
 
 
 /**
@@ -259,23 +249,18 @@ Ext2ComponentNameGetDriverName (
   the language specified by Language.
 
 **/
-EFI_STATUS
-EFIAPI
-Ext2ComponentNameGetControllerName (
-				    IN  EFI_COMPONENT_NAME_PROTOCOL                     *This,
-				    IN  EFI_HANDLE                                      ControllerHandle,
-				    IN  EFI_HANDLE                                      ChildHandle        OPTIONAL,
-				    IN  CHAR8                                           *Language,
-				    OUT CHAR16                                          **ControllerName
-				    );
+EFI_STATUS EFIAPI Ext2ComponentNameGetControllerName (
+  IN EFI_COMPONENT_NAME_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_HANDLE ChildHandle OPTIONAL,
+  IN CHAR8 * Language,
+  OUT CHAR16 ** ControllerName
+);
 
 
-EFI_STATUS
-Ext2CheckSB (
-    IN EFI_DISK_IO_PROTOCOL *DiskIo,
-    IN UINT32 MediaId
+EFI_STATUS      Ext2CheckSB (
+  IN EFI_DISK_IO_PROTOCOL * DiskIo,
+  IN UINT32 MediaId
 );
 
 #endif
-
-

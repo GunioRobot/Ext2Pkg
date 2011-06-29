@@ -18,7 +18,7 @@
 //
 // EFI Component Name Protocol
 //
-GLOBAL_REMOVE_IF_UNREFERENCED EFI_COMPONENT_NAME_PROTOCOL  gExt2ComponentName = {
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_COMPONENT_NAME_PROTOCOL gExt2ComponentName = {
   Ext2ComponentNameGetDriverName,
   Ext2ComponentNameGetControllerName,
   "eng"
@@ -39,13 +39,12 @@ GLOBAL_REMOVE_IF_UNREFERENCED EFI_COMPONENT_NAME2_PROTOCOL gExt2ComponentName2 =
 //
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_UNICODE_STRING_TABLE mExt2DriverNameTable[] = {
   {
-    "eng;en",
-    (CHAR16 *)L"Ext2 filesystem Driver"
-  },
+   "eng;en",
+   (CHAR16 *) L"Ext2 filesystem Driver"}
+  ,
   {
-    NULL,
-    NULL
-  }
+   NULL,
+   NULL}
 };
 
 
@@ -89,25 +88,23 @@ GLOBAL_REMOVE_IF_UNREFERENCED EFI_UNICODE_STRING_TABLE mExt2DriverNameTable[] = 
                                 the language specified by Language.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2ComponentNameGetDriverName (
-  IN  EFI_COMPONENT_NAME_PROTOCOL  *This,
-  IN  CHAR8                        *Language,
-  OUT CHAR16                       **DriverName
-  )
+  IN EFI_COMPONENT_NAME_PROTOCOL * This,
+  IN CHAR8 * Language,
+  OUT CHAR16 ** DriverName
+)
 {
-  EFI_STATUS Status;
+  EFI_STATUS      Status;
 
-  Status = LookupUnicodeString2 (
-				 Language,
+  Status = LookupUnicodeString2 (Language,
 				 This->SupportedLanguages,
 				 mExt2DriverNameTable,
 				 DriverName,
-				 (BOOLEAN)(This == &gExt2ComponentName)
-				 );
+				 (BOOLEAN) (This == &gExt2ComponentName)
+    );
 
-  DEBUG((EFI_D_ERROR, "Ext2ComponentNameGetDriverName: %r\n", Status));
+  DEBUG ((EFI_D_ERROR, "Ext2ComponentNameGetDriverName: %r\n", Status));
 
   return Status;
 }
@@ -181,73 +178,65 @@ Ext2ComponentNameGetDriverName (
                                 the language specified by Language.
 
 **/
-EFI_STATUS
-EFIAPI
+EFI_STATUS EFIAPI
 Ext2ComponentNameGetControllerName (
-				    IN  EFI_COMPONENT_NAME_PROTOCOL                     *This,
-				    IN  EFI_HANDLE                                      ControllerHandle,
-				    IN  EFI_HANDLE                                      ChildHandle        OPTIONAL,
-				    IN  CHAR8                                           *Language,
-				    OUT CHAR16                                          **ControllerName
-				    )
+  IN EFI_COMPONENT_NAME_PROTOCOL * This,
+  IN EFI_HANDLE ControllerHandle,
+  IN EFI_HANDLE ChildHandle OPTIONAL,
+  IN CHAR8 * Language,
+  OUT CHAR16 ** ControllerName
+)
 {
-  
-  EFI_STATUS Status;
+
+  EFI_STATUS      Status;
   EFI_BLOCK_IO_PROTOCOL *BlockIo;
-  EXT2_DEV *Ext2Device;
+  EXT2_DEV       *Ext2Device;
 
   //
   // This is a device driver, so ChildHandle must be NULL.
   //
   if (ChildHandle != NULL) {
-    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error ChildHandle!=NULL\n"));
+    DEBUG ((EFI_D_INFO,
+	    "Ext2ComponentNameGetControllerName: Error ChildHandle!=NULL\n"));
     return EFI_UNSUPPORTED;
   }
-
   //
   // Make sure this driver is currently managing ControllerHandle
   //
-  Status = EfiTestManagedDevice (
-				 ControllerHandle,
+  Status = EfiTestManagedDevice (ControllerHandle,
 				 gExt2DriverBinding.DriverBindingHandle,
-				 &gEfiDiskIoProtocolGuid			
-				 );
+				 &gEfiDiskIoProtocolGuid);
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error test managed device\n"));
+    DEBUG ((EFI_D_INFO,
+	    "Ext2ComponentNameGetControllerName: Error test managed device\n"));
     return Status;
   }
-
   //
   // Get the Block I/O Protocol on Controller
   //
-  Status = gBS->OpenProtocol (
-			      ControllerHandle,
+  Status = gBS->OpenProtocol (ControllerHandle,
 			      &gEfiBlockIoProtocolGuid,
-			      (VOID **) &BlockIo,
+			      (VOID **) & BlockIo,
 			      gExt2DriverBinding.DriverBindingHandle,
-			      ControllerHandle,
-			      EFI_OPEN_PROTOCOL_GET_PROTOCOL
-			      );
+			      ControllerHandle, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
   if (EFI_ERROR (Status)) {
-    DEBUG((EFI_D_INFO, "Ext2ComponentNameGetControllerName: Error open protocol BlockIo\n"));
+    DEBUG ((EFI_D_INFO,
+	    "Ext2ComponentNameGetControllerName: Error open protocol BlockIo\n"));
     return Status;
   }
-
   //
   // Get the Ext2 Controller's Device structure
   //
-  Ext2Device = EXT2_DEV_FROM_THIS(BlockIo);
+  Ext2Device = EXT2_DEV_FROM_THIS (BlockIo);
 
-  Status = LookupUnicodeString2 (
-				 Language,
+  Status = LookupUnicodeString2 (Language,
 				 This->SupportedLanguages,
 				 Ext2Device->ControllerNameTable,
 				 ControllerName,
 				 (BOOLEAN) (This == &gExt2ComponentName)
-				 );
+    );
 
-  DEBUG((EFI_D_ERROR, "Ext2ComponentNameGetControllerName: %r\n", Status));
-  
+  DEBUG ((EFI_D_ERROR, "Ext2ComponentNameGetControllerName: %r\n", Status));
+
   return Status;
 }
-

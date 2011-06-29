@@ -145,65 +145,65 @@
  * Super block for an ext2fs file system.
  */
 struct ext2fs {
-	UINT32  e2fs_icount;		/* Inode count */
-	UINT32  e2fs_bcount;		/* blocks count */
-	UINT32  e2fs_rbcount;		/* reserved blocks count */
-	UINT32  e2fs_fbcount;		/* free blocks count */
-	UINT32  e2fs_ficount;		/* free inodes count */
-	UINT32  e2fs_first_dblock;	/* first data block */
-	UINT32  e2fs_log_bsize;		/* block size = 1024*(2^e2fs_log_bsize) */
-	UINT32  e2fs_fsize;		/* fragment size */
-	UINT32  e2fs_bpg;		/* blocks per group */
-	UINT32  e2fs_fpg;		/* frags per group */
-	UINT32  e2fs_ipg;		/* inodes per group */
-	UINT32  e2fs_mtime;		/* mount time */
-	UINT32  e2fs_wtime;		/* write time */
-	UINT16  e2fs_mnt_count;		/* mount count */
-	UINT16  e2fs_max_mnt_count;	/* max mount count */
-	UINT16  e2fs_magic;		/* magic number */
-	UINT16  e2fs_state;		/* file system state */
-	UINT16  e2fs_beh;		/* behavior on errors */
-	UINT16  e2fs_minrev;		/* minor revision level */
-	UINT32  e2fs_lastfsck;		/* time of last fsck */
-	UINT32  e2fs_fsckintv;		/* max time between fscks */
-	UINT32  e2fs_creator;		/* creator OS */
-	UINT32  e2fs_rev;		/* revision level */
-	UINT16  e2fs_ruid;		/* default uid for reserved blocks */
-	UINT16  e2fs_rgid;		/* default gid for reserved blocks */
-	/* EXT2_DYNAMIC_REV superblocks */
-	UINT32  e2fs_first_ino;		/* first non-reserved inode */
-	UINT16  e2fs_inode_size;	/* size of inode structure */
-	UINT16  e2fs_block_group_nr;	/* block grp number of this sblk*/
-	UINT32  e2fs_features_compat; 	/*  compatible feature set */
-	UINT32  e2fs_features_incompat; /* incompatible feature set */
-	UINT32  e2fs_features_rocompat; /* RO-compatible feature set */
-	UINT8   e2fs_uuid[16];		/* 128-bit uuid for volume */
-	CHAR8   e2fs_vname[16];		/* volume name */
-	CHAR8   e2fs_fsmnt[64]; 	/* name mounted on */
-	UINT32  e2fs_algo;		/* For compression */
-	UINT8   e2fs_prealloc;		/* # of blocks to preallocate */
-	UINT8   e2fs_dir_prealloc;	/* # of blocks to preallocate for dir */
-	UINT16  e2fs_reserved_ngdb; 	/* # of reserved gd blocks for resize */
-	UINT32  reserved2[204];
+  UINT32          e2fs_icount;	/* Inode count */
+  UINT32          e2fs_bcount;	/* blocks count */
+  UINT32          e2fs_rbcount;	/* reserved blocks count */
+  UINT32          e2fs_fbcount;	/* free blocks count */
+  UINT32          e2fs_ficount;	/* free inodes count */
+  UINT32          e2fs_first_dblock;	/* first data block */
+  UINT32          e2fs_log_bsize;	/* block size = 1024*(2^e2fs_log_bsize) */
+  UINT32          e2fs_fsize;	/* fragment size */
+  UINT32          e2fs_bpg;	/* blocks per group */
+  UINT32          e2fs_fpg;	/* frags per group */
+  UINT32          e2fs_ipg;	/* inodes per group */
+  UINT32          e2fs_mtime;	/* mount time */
+  UINT32          e2fs_wtime;	/* write time */
+  UINT16          e2fs_mnt_count;	/* mount count */
+  UINT16          e2fs_max_mnt_count;	/* max mount count */
+  UINT16          e2fs_magic;	/* magic number */
+  UINT16          e2fs_state;	/* file system state */
+  UINT16          e2fs_beh;	/* behavior on errors */
+  UINT16          e2fs_minrev;	/* minor revision level */
+  UINT32          e2fs_lastfsck;	/* time of last fsck */
+  UINT32          e2fs_fsckintv;	/* max time between fscks */
+  UINT32          e2fs_creator;	/* creator OS */
+  UINT32          e2fs_rev;	/* revision level */
+  UINT16          e2fs_ruid;	/* default uid for reserved blocks */
+  UINT16          e2fs_rgid;	/* default gid for reserved blocks */
+  /* EXT2_DYNAMIC_REV superblocks */
+  UINT32          e2fs_first_ino;	/* first non-reserved inode */
+  UINT16          e2fs_inode_size;	/* size of inode structure */
+  UINT16          e2fs_block_group_nr;	/* block grp number of this sblk */
+  UINT32          e2fs_features_compat;	/*  compatible feature set */
+  UINT32          e2fs_features_incompat;	/* incompatible feature set */
+  UINT32          e2fs_features_rocompat;	/* RO-compatible feature set */
+  UINT8           e2fs_uuid[16];	/* 128-bit uuid for volume */
+  CHAR8           e2fs_vname[16];	/* volume name */
+  CHAR8           e2fs_fsmnt[64];	/* name mounted on */
+  UINT32          e2fs_algo;	/* For compression */
+  UINT8           e2fs_prealloc;	/* # of blocks to preallocate */
+  UINT8           e2fs_dir_prealloc;	/* # of blocks to preallocate for dir */
+  UINT16          e2fs_reserved_ngdb;	/* # of reserved gd blocks for resize */
+  UINT32          reserved2[204];
 };
 
 
 /* in-memory data for ext2fs */
 struct m_ext2fs {
-	struct ext2fs e2fs;
-	CHAR8  e2fs_fsmnt[MAXMNTLEN];	/* name mounted on */
-	INT8   e2fs_ronly;		/* mounted read-only flag */
-	INT8   e2fs_fmod;		/* super block modified flag */
-	INT32  e2fs_bsize;		/* block size */
-	INT32  e2fs_bshift;		/* ``lblkno'' calc of logical blkno */
-	INT32  e2fs_bmask;		/* ``blkoff'' calc of blk offsets */
-	INT64  e2fs_qbmask;		/* ~fs_bmask - for use with quad size */
-	INT32  e2fs_fsbtodb;		/* fsbtodb and dbtofsb shift constant */
-	INT32  e2fs_ncg;		/* number of cylinder groups */
-	INT32  e2fs_ngdb;		/* number of group descriptor block */
-	INT32  e2fs_ipb;		/* number of inodes per block */
-	INT32  e2fs_itpg;		/* number of inode table per group */
-	struct ext2_gd *e2fs_gd; 	/* group descripors */
+  struct ext2fs   e2fs;
+  CHAR8           e2fs_fsmnt[MAXMNTLEN];	/* name mounted on */
+  INT8            e2fs_ronly;	/* mounted read-only flag */
+  INT8            e2fs_fmod;	/* super block modified flag */
+  INT32           e2fs_bsize;	/* block size */
+  INT32           e2fs_bshift;	/* ``lblkno'' calc of logical blkno */
+  INT32           e2fs_bmask;	/* ``blkoff'' calc of blk offsets */
+  INT64           e2fs_qbmask;	/* ~fs_bmask - for use with quad size */
+  INT32           e2fs_fsbtodb;	/* fsbtodb and dbtofsb shift constant */
+  INT32           e2fs_ncg;	/* number of cylinder groups */
+  INT32           e2fs_ngdb;	/* number of group descriptor block */
+  INT32           e2fs_ipb;	/* number of inodes per block */
+  INT32           e2fs_itpg;	/* number of inode table per group */
+  struct ext2_gd *e2fs_gd;	/* group descripors */
 };
 
 
@@ -270,14 +270,14 @@ struct m_ext2fs {
 /* ext2 file system block group descriptor */
 
 struct ext2_gd {
-	UINT32 ext2bgd_b_bitmap;	/* blocks bitmap block */
-	UINT32 ext2bgd_i_bitmap;	/* inodes bitmap block */
-	UINT32 ext2bgd_i_tables;	/* inodes table block  */
-	UINT16 ext2bgd_nbfree;		/* number of free blocks */
-	UINT16 ext2bgd_nifree;		/* number of free inodes */
-	UINT16 ext2bgd_ndirs;		/* number of directories */
-	UINT16 reserved;
-	UINT32 reserved2[3];
+  UINT32          ext2bgd_b_bitmap;	/* blocks bitmap block */
+  UINT32          ext2bgd_i_bitmap;	/* inodes bitmap block */
+  UINT32          ext2bgd_i_tables;	/* inodes table block  */
+  UINT16          ext2bgd_nbfree;	/* number of free blocks */
+  UINT16          ext2bgd_nifree;	/* number of free inodes */
+  UINT16          ext2bgd_ndirs;	/* number of directories */
+  UINT16          reserved;
+  UINT32          reserved2[3];
 };
 
 
@@ -319,8 +319,16 @@ cg_has_sb(int i)
 #	define e2fs_sbsave(old, new) memcpy((new), (old), SBSIZE);
 #	define e2fs_cgsave(old, new, size) memcpy((new), (old), (size));
 #else
-void e2fs_sb_bswap(struct ext2fs *, struct ext2fs *);
-void e2fs_cg_bswap(struct ext2_gd *, struct ext2_gd *, int);
+void            e2fs_sb_bswap (
+  struct ext2fs *,
+  struct ext2fs *
+);
+void            e2fs_cg_bswap (
+  struct ext2_gd *,
+  struct ext2_gd *,
+  int
+);
+
 #	define h2fs16(x) bswap16(x)
 #	define h2fs32(x) bswap32(x)
 #	define h2fs64(x) bswap64(x)

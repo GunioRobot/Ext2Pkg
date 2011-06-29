@@ -286,7 +286,7 @@ struct ext2_gd {
  * copy of the super and cylinder group descriptors blocks only if it's
  * 1, a power of 3, 5 or 7
  */
-
+/*
 static __inline int cg_has_sb(int) __unused;
 static __inline int
 cg_has_sb(int i)
@@ -302,7 +302,7 @@ cg_has_sb(int i)
 			return 1;
 	return 0;
 }
-
+*/
 /* EXT2FS metadatas are stored in little-endian byte order. These macros
  * helps reading theses metadatas
  */

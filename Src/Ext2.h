@@ -269,6 +269,13 @@ Ext2ComponentNameGetControllerName (
 				    OUT CHAR16                                          **ControllerName
 				    );
 
+
+EFI_STATUS
+Ext2CheckSB (
+    IN EFI_DISK_IO_PROTOCOL *DiskIo,
+    IN UINT32 MediaId
+);
+
 #endif
 
 

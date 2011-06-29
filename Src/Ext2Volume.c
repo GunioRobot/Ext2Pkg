@@ -18,7 +18,7 @@ Ext2CheckSB (
     )
 {
     EFI_STATUS Status;
-    struct ext2fs *Ext2SuperBlock
+    struct ext2fs *Ext2SuperBlock;
     
     Status = DiskIo->ReadDisk (DiskIo, MediaId, 0, sizeof (struct ext2fs), Ext2SuperBlock);
 

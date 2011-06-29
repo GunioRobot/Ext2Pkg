@@ -18,7 +18,12 @@ Ext2CheckSB (
     )
 {
     EFI_STATUS Status;
-    struct ext2fs *Ext2SuperBlock;
+    struct ext2fs *Ext2SuperBlock = AllocateZeroPool (sizeof (struct ext2fs));
+
+    if (Ext2SuperBlock == NULL) {
+      DEBUG((EFI_D_INFO, "Ext2CheckSB: error AllocateZeroPool\n"));
+      return EFI_OUT_OF_RESOURCES;
+    }
     
     Status = DiskIo->ReadDisk (DiskIo, MediaId, 0, sizeof (struct ext2fs), Ext2SuperBlock);
 

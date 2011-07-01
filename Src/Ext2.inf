@@ -42,6 +42,10 @@
   UefiDriverEntryPoint
   DebugLib
   PcdLib
+  LibC
+  LibUefi
+  LibStdLib
+
 
 [Guids]
   gEfiFileInfoGuid

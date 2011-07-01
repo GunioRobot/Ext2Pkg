@@ -27,7 +27,7 @@
   Ext2.c
   ComponentName.c
   Ext2Volume.c
-  Ext2FS.h
+  ext2fs.h
 
 [Packages]
   MdePkg/MdePkg.dec

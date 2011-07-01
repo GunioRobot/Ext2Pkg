@@ -1,5 +1,4 @@
 #include "Ext2.h"
-#include "Ext2FS.h"
 
 EFI_STATUS EFIAPI
 Ext2OpenVolume (
@@ -10,30 +9,31 @@ Ext2OpenVolume (
   return EFI_SUCCESS;
 }
 
+/**
+  Checks if the volume contains a valid ext2 partition
+
+  @param  Private[in]       A pointer to the volume to check.              
+
+  @retval EFI_SUCCESS       This volume contains a valid ext2 partition.
+  @retval other             This volume does not contain a valid ext2 partition.
+
+**/
 EFI_STATUS
 Ext2CheckSB (
-  IN EFI_DISK_IO_PROTOCOL * DiskIo,
-  IN UINT32 MediaId
+  IN OUT EXT2_DEV *Private
 )
 {
   EFI_STATUS      Status;
-  struct ext2fs  *Ext2SuperBlock = AllocateZeroPool (sizeof (struct ext2fs));
-
-  if (Ext2SuperBlock == NULL) {
-    DEBUG ((EFI_D_INFO, "Ext2CheckSB: error AllocateZeroPool\n"));
-    return EFI_OUT_OF_RESOURCES;
-  }
 
   Status =
-    DiskIo->ReadDisk (DiskIo, MediaId, 1024, sizeof (struct ext2fs),
-		      &Ext2SuperBlock);
+    DiskIo->ReadDisk (Private->DiskIo, Private->BlockIo->Media->MediaId, 1024, sizeof (struct ext2fs), &Private->fs->e2fs);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((EFI_D_INFO, "Ext2CheckSB: error reading ext2 superblock\n"));
     return Status;
   }
 
-  if (Ext2SuperBlock.e2fs_magic != E2FS_MAGIC) {
+  if (Private->fs->e2fs.e2fs_magic != E2FS_MAGIC) {
     DEBUG ((EFI_D_INFO, "Ext2CheckSB: error not ext2 partition\n"));
     return EFI_UNSUPPORTED;
   }

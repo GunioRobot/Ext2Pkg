@@ -161,7 +161,9 @@ Ext2Start (
   if (BlockIo->Media->MediaPresent ||
       (BlockIo->Media->RemovableMedia && !BlockIo->Media->LogicalPartition)) {
 
-    Status = Ext2CheckSB (DiskIo, BlockIo->Media->MediaId);
+    Private->BlockIo = BlockIo;
+    Private->DiskIo = DiskIo;    
+    Status = Ext2CheckSB (Private);
 
     if (EFI_ERROR (Status)) {
       DEBUG ((EFI_D_INFO, "Ext2Start: Error superblock\n"));
@@ -177,8 +179,6 @@ Ext2Start (
     }
 
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
-    Private->DiskIo = DiskIo;
-    Private->BlockIo = BlockIo;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;
 
   }

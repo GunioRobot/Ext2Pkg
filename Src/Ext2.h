@@ -32,6 +32,8 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DevicePathLib.h>
 
+#include "ext2fs.h"
+
 #define EXT2_PRIVATE_DATA_SIGNATURE SIGNATURE_32 ('E','x','t','2')
 
 typedef struct {
@@ -45,6 +47,8 @@ typedef struct {
   EFI_BLOCK_IO_PROTOCOL *BlockIo;
 
   EFI_UNICODE_STRING_TABLE *ControllerNameTable;
+
+  struct m_ext2fs *fs;
 
 } EXT2_DEV;
 
@@ -258,9 +262,17 @@ EFI_STATUS EFIAPI Ext2ComponentNameGetControllerName (
 );
 
 
+/**
+  Checks if the volume contains a valid ext2 partition
+
+  @param  Private[in]       A pointer to the volume to check.              
+
+  @retval EFI_SUCCESS       This volume contains a valid ext2 partition.
+  @retval other             This volume does not contain a valid ext2 partition.
+
+**/
 EFI_STATUS      Ext2CheckSB (
-  IN EFI_DISK_IO_PROTOCOL * DiskIo,
-  IN UINT32 MediaId
+  IN OUT EXT2_DEV *Private
 );
 
 #endif

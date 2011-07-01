@@ -59,10 +59,27 @@
  *  Modified for ext2fs by Manuel Bouyer.
  */
 
+
+/** @file
+
+  Ext2 Driver Reference EDKII Module
+  
+  Based on Manuel Bouyer's code in NetBSD. Ported to UEFI data types.
+
+  Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin.codejunkie@gmail.com>
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution. The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+**/
+
 #ifndef _UFS_EXT2FS_EXT2FS_H_
 #define _UFS_EXT2FS_EXT2FS_H_
-
-#include <sys/bswap.h>
 
 /*
  * Each disk drive contains some number of file systems.
@@ -83,8 +100,8 @@
 #define SBSIZE		1024
 #define	BBOFF		((off_t)(0))
 #define	SBOFF		((off_t)(BBOFF + BBSIZE))
-#define	BBLOCK		((daddr_t)(0))
-#define	SBLOCK		((daddr_t)(BBLOCK + BBSIZE / DEV_BSIZE))
+#define	BBLOCK		((UINT64)(0))
+#define	SBLOCK		((UINT64)(BBLOCK + BBSIZE / DEV_BSIZE))
 
 /*
  * Addresses stored in inodes are capable of addressing blocks
@@ -268,7 +285,7 @@ struct ext2_gd {
  * copy of the super and cylinder group descriptors blocks only if it's
  * 1, a power of 3, 5 or 7
  */
-
+/*
 static __inline int cg_has_sb(int) __unused;
 static __inline int
 cg_has_sb(int i)
@@ -284,7 +301,7 @@ cg_has_sb(int i)
 			return 1;
 	return 0;
 }
-
+*/
 /* EXT2FS metadatas are stored in little-endian byte order. These macros
  * helps reading theses metadatas
  */

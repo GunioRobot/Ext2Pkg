@@ -161,6 +161,12 @@ Ext2Start (
   if (BlockIo->Media->MediaPresent ||
       (BlockIo->Media->RemovableMedia && !BlockIo->Media->LogicalPartition)) {
 
+    Private = AllocateZeroPool (sizeof (EXT2_DEV));
+    if (Private == NULL) {
+      DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
+      return EFI_OUT_OF_RESOURCES;
+    }
+
     Private->BlockIo = BlockIo;
     Private->DiskIo = DiskIo;    
     Status = Ext2CheckSB (Private);
@@ -171,12 +177,6 @@ Ext2Start (
     }
     // install ext2 handle if supported by the media
     // still need to code
-
-    Private = AllocateZeroPool (sizeof (EXT2_DEV));
-    if (Private == NULL) {
-      DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
-      return EFI_OUT_OF_RESOURCES;
-    }
 
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;

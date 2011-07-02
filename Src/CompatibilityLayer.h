@@ -17,10 +17,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _COMPATIBILITYLAYER_H_
 #define _COMPATIBILITYLAYER_H_
 
-#include "Ext2.h"
-
-typedef CHAR8 char;
-typedef UCHAR u_char;
+typedef UINT8 u_char;
 
 typedef INT8 int8_t;
 typedef UINT8 uint8_t;

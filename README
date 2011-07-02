@@ -1,0 +1,15 @@
+git clone git://github.com/rraf/edk2.git
+cd edk2
+git://github.com/rraf/Ext2Pkg.git
+
+build BaseTools, set environment, set target, add Ext2Pkg to OvmfPkg
+
+build OvmfPkg http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=How_to_build_OVMF
+
+in the folder where you copied the bios/video image.
+
+qemu-img create -f raw disk.img 100M
+mkfs.ext2 -F disk.img 
+qemu -L . -hda disk.img -serial stdio
+
+Enjoy.

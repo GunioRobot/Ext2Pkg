@@ -41,7 +41,7 @@ Ext2CheckSB (
   EFI_STATUS      Status;
 
   Status =
-    DiskIo->ReadDisk (Private->DiskIo, Private->BlockIo->Media->MediaId, 1024, sizeof (struct ext2fs), &Private->fs->e2fs);
+    Private->DiskIo->ReadDisk (Private->DiskIo, Private->BlockIo->Media->MediaId, 1024, sizeof (struct ext2fs), &Private->fs->e2fs);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((EFI_D_INFO, "Ext2CheckSB: error reading ext2 superblock\n"));

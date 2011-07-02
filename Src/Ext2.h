@@ -48,7 +48,7 @@ typedef struct {
 
   EFI_UNICODE_STRING_TABLE *ControllerNameTable;
 
-  struct m_ext2fs *fs;
+  struct m_ext2fs fs;
 
 } EXT2_DEV;
 
@@ -272,7 +272,9 @@ EFI_STATUS EFIAPI Ext2ComponentNameGetControllerName (
 
 **/
 EFI_STATUS      Ext2CheckSB (
-  IN OUT EXT2_DEV *Private
+  IN EFI_DISK_IO_PROTOCOL *DiskIo,
+  IN UINT32 MediaId,
+  OUT struct ext2fs *e2fs
 );
 
 #endif

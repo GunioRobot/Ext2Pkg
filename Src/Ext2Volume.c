@@ -35,20 +35,21 @@ Ext2OpenVolume (
 **/
 EFI_STATUS
 Ext2CheckSB (
-  IN OUT EXT2_DEV *Private
+  IN EFI_DISK_IO_PROTOCOL *DiskIo,
+  IN UINT32 MediaId,
+  OUT struct ext2fs *e2fs
 )
 {
   EFI_STATUS      Status;
 
-  Status =
-    Private->DiskIo->ReadDisk (Private->DiskIo, Private->BlockIo->Media->MediaId, 1024, sizeof (struct ext2fs), &Private->fs->e2fs);
+  Status = DiskIo->ReadDisk (DiskIo, MediaId, 1024, sizeof (struct ext2fs), e2fs);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((EFI_D_INFO, "Ext2CheckSB: error reading ext2 superblock\n"));
     return Status;
   }
 
-  if (Private->fs->e2fs.e2fs_magic != E2FS_MAGIC) {
+  if (e2fs->e2fs_magic != E2FS_MAGIC) {
     DEBUG ((EFI_D_INFO, "Ext2CheckSB: error not ext2 partition\n"));
     return EFI_UNSUPPORTED;
   }

@@ -30,6 +30,7 @@
   ext2fs.h
 
 [Packages]
+  StdLib/StdLib.dec
   MdePkg/MdePkg.dec
 
 [LibraryClasses]
@@ -42,6 +43,10 @@
   UefiDriverEntryPoint
   DebugLib
   PcdLib
+  UefiLib
+  LibC
+  LibStdLib
+  LibStdio
 
 [Guids]
   gEfiFileInfoGuid

@@ -59,6 +59,7 @@
  *  Modified for ext2fs by Manuel Bouyer.
  */
 
+
 #ifndef _UFS_EXT2FS_EXT2FS_H_
 #define _UFS_EXT2FS_EXT2FS_H_
 

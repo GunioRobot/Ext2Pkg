@@ -185,7 +185,8 @@ Ext2Start (
 
     Private->BlockIo = BlockIo;
     Private->DiskIo = DiskIo;
-    Private->fs.e2fs = *e2fs;
+    CopyMem(&Private->fs.e2fs, e2fs, sizeof (struct ext2fs));
+    FreePool(e2fs);
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;
 

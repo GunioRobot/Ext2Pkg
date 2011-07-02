@@ -17,6 +17,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _COMPATIBILITYLAYER_H_
 #define _COMPATIBILITYLAYER_H_
 
+#include <Library/BaseLib.h>
+
 #define memcpy CopyMem
 
 #undef bswap16

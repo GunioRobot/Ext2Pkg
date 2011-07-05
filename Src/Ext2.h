@@ -70,7 +70,7 @@ typedef struct {
   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *Filesystem;
   EFI_FILE_PROTOCOL EfiFile;
   INTN            fd;
-  DIR            *Dir;
+//  DIR            *Dir;
   BOOLEAN         IsRootDirectory;
   BOOLEAN         IsDirectoryPath;
   BOOLEAN         IsOpenedByRead;

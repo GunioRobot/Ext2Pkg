@@ -32,7 +32,7 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/DevicePathLib.h>
 #include <Guid/FileSystemInfo.h>
-#include <Guid/FileInfo>
+#include <Guid/FileInfo.h>
 #include <Guid/FileSystemVolumeLabelInfo.h>
 
 #include "ext2fs.h"

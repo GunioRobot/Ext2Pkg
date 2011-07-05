@@ -262,7 +262,7 @@ Ext2Stop (
 
     DEBUG ((EFI_D_INFO, "Ext2Stop: Error open protocol SimpleFileSystem\n"));
 
-    Private = EXT2_DEV_FROM_FILESYSTEM (FileSystem);
+    Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS (FileSystem);
     BlockIo = Private->BlockIo;
 
     //

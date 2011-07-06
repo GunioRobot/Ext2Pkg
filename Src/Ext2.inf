@@ -27,9 +27,11 @@
   Ext2.c
   ComponentName.c
   Ext2Volume.c
-  ext2fs.h
   CompatibilityLayer.h
   CompatibilityLayer.c
+  ext2fs.h
+  ext2fs_dinode.h
+  ext2fs_dir.h
 
 [Packages]
   MdePkg/MdePkg.dec

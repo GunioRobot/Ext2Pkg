@@ -38,6 +38,7 @@ typedef UINT64 uint64_t;
 
 typedef INT64 off_t;
 typedef INT64 daddr_t;
+typedef UINT64 ino_t;
 
 /**
 Switches the endianness of a 16-bit integer.

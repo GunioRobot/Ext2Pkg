@@ -18,6 +18,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define _COMPATIBILITYLAYER_H_
 
 #include <Library/BaseLib.h>
+#include <endian.h>
 
 #define memcpy CopyMem
 

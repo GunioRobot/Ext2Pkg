@@ -3,7 +3,7 @@
 
   Based on MdeModulePkg/Universal/Disk/PartitionDxe/
 
-  Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin.codejunkie@gmail.com>
+  Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin@softwareliber.ro>
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License

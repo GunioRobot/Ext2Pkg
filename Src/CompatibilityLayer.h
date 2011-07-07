@@ -3,7 +3,7 @@ Ext2 Driver Reference EDKII Module
 
 Used to keep a compatibility layer between NetBSD and edk data types.
 
-Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin.codejunkie@gmail.com>
+Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin@softwareliber.ro>
 
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License

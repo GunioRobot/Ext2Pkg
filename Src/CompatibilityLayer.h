@@ -28,6 +28,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #undef bswap32
 #undef bswap64
 
+#define INT32_MAX 0x7fffffff
+
 typedef UINT8 u_char;
 
 typedef INT8 int8_t;

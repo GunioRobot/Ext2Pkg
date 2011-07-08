@@ -1,4 +1,4 @@
-/*	$NetBSD: ext2fs_dinode.h,v 1.16.28.1 2008/11/29 23:10:18 snj Exp $	*/
+/*	$NetBSD: ext2fs_dinode.h,v 1.22 2009/11/27 11:16:54 tsutsui Exp $	*/
 
 /*
  * Copyright (c) 1982, 1989, 1993
@@ -48,11 +48,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by Manuel Bouyer.
- * 4. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -80,9 +75,15 @@
  * the root inode is 2.
  * Inode 3 to 10 are reserved in ext2fs.
  */
-#define	EXT2_ROOTINO	((ino_t)2)
-#define	EXT2_RESIZEINO	((ino_t)7)
-#define	EXT2_FIRSTINO	((ino_t)11)
+#define	EXT2_BADBLKINO		((ino_t)1)
+#define	EXT2_ROOTINO		((ino_t)2)
+#define	EXT2_ACLIDXINO		((ino_t)3)
+#define	EXT2_ACLDATAINO		((ino_t)4)
+#define	EXT2_BOOTLOADERINO	((ino_t)5)
+#define	EXT2_UNDELDIRINO	((ino_t)6)
+#define	EXT2_RESIZEINO		((ino_t)7)
+#define	EXT2_JOURNALINO		((ino_t)8)
+#define	EXT2_FIRSTINO		((ino_t)11)
 
 /*
  * A dinode contains all the meta-data associated with a UFS file.
@@ -94,37 +95,37 @@
 #define	NDADDR	12			/* Direct addresses in inode. */
 #define	NIADDR	3			/* Indirect addresses in inode. */
 
-#define EXT2_MAXSYMLINKLEN ((NDADDR+NIADDR) * sizeof (u_int32_t))
+#define EXT2_MAXSYMLINKLEN ((NDADDR+NIADDR) * sizeof (uint32_t))
 
 struct ext2fs_dinode {
-	u_int16_t	e2di_mode;	/*   0: IFMT, permissions; see below. */
-	u_int16_t	e2di_uid;	/*   2: Owner UID */
-	u_int32_t	e2di_size;	/*	 4: Size (in bytes) */
-	u_int32_t	e2di_atime;	/*	 8: Acces time */
-	u_int32_t	e2di_ctime;	/*	12: Create time */
-	u_int32_t	e2di_mtime;	/*	16: Modification time */
-	u_int32_t	e2di_dtime;	/*	20: Deletion time */
-	u_int16_t	e2di_gid;	/*  24: Owner GID */
-	u_int16_t	e2di_nlink;	/*  26: File link count */
-	u_int32_t	e2di_nblock;	/*  28: Blocks count */
-	u_int32_t	e2di_flags;	/*  32: Status flags (chflags) */
-	u_int32_t	e2di_linux_reserved1; /* 36 */
-	u_int32_t	e2di_blocks[NDADDR+NIADDR]; /* 40: disk blocks */
-	u_int32_t	e2di_gen;	/* 100: generation number */
-	u_int32_t	e2di_facl;	/* 104: file ACL (not implemented) */
-	u_int32_t	e2di_dacl;	/* 108: dir ACL (not implemented) */
-	u_int32_t	e2di_faddr;	/* 112: fragment address */
-	u_int8_t	e2di_nfrag;	/* 116: fragment number */
-	u_int8_t	e2di_fsize;	/* 117: fragment size */
-	u_int16_t	e2di_linux_reserved2; /* 118 */
-	u_int16_t	e2di_uid_high;	/* 120: Owner UID top 16 bits */
-	u_int16_t	e2di_gid_high;	/* 122: Owner GID top 16 bits */
-	u_int32_t	e2di_linux_reserved3; /* 124 */
+	uint16_t	e2di_mode;	/*   0: IFMT, permissions; see below. */
+	uint16_t	e2di_uid;	/*   2: Owner UID */
+	uint32_t	e2di_size;	/*	 4: Size (in bytes) */
+	uint32_t	e2di_atime;	/*	 8: Acces time */
+	uint32_t	e2di_ctime;	/*	12: Create time */
+	uint32_t	e2di_mtime;	/*	16: Modification time */
+	uint32_t	e2di_dtime;	/*	20: Deletion time */
+	uint16_t	e2di_gid;	/*  24: Owner GID */
+	uint16_t	e2di_nlink;	/*  26: File link count */
+	uint32_t	e2di_nblock;	/*  28: Blocks count */
+	uint32_t	e2di_flags;	/*  32: Status flags (chflags) */
+	uint32_t	e2di_linux_reserved1; /* 36 */
+	uint32_t	e2di_blocks[NDADDR+NIADDR]; /* 40: disk blocks */
+	uint32_t	e2di_gen;	/* 100: generation number */
+	uint32_t	e2di_facl;	/* 104: file ACL (not implemented) */
+	uint32_t	e2di_dacl;	/* 108: dir ACL (not implemented) */
+	uint32_t	e2di_faddr;	/* 112: fragment address */
+	uint8_t		e2di_nfrag;	/* 116: fragment number */
+	uint8_t		e2di_fsize;	/* 117: fragment size */
+	uint16_t	e2di_linux_reserved2; /* 118 */
+	uint16_t	e2di_uid_high;	/* 120: Owner UID top 16 bits */
+	uint16_t	e2di_gid_high;	/* 122: Owner GID top 16 bits */
+	uint32_t	e2di_linux_reserved3; /* 124 */
 };
 
 
 
-#define	E2MAXSYMLINKLEN	((NDADDR + NIADDR) * sizeof(u_int32_t))
+#define	E2MAXSYMLINKLEN	((NDADDR + NIADDR) * sizeof(uint32_t))
 
 /* File permissions. */
 #define	EXT2_IEXEC		0000100		/* Executable. */
@@ -154,7 +155,10 @@ struct ext2fs_dinode {
 #define EXT2_NODUMP		0x00000040	/* do not dump file */
 
 /* Size of on-disk inode. */
-#define	EXT2_DINODE_SIZE	(sizeof(struct ext2fs_dinode))	/* 128 */
+#define EXT2_REV0_DINODE_SIZE	sizeof(struct ext2fs_dinode)
+#define EXT2_DINODE_SIZE(fs)	((fs)->e2fs.e2fs_rev > E2FS_REV0 ?	\
+				    (fs)->e2fs.e2fs_inode_size :	\
+				    EXT2_REV0_DINODE_SIZE)
 
 /*
  * The e2di_blocks fields may be overlaid with other information for

@@ -22,6 +22,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #define memcpy CopyMem
 
+#define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
+
 #undef bswap16
 #undef bswap32
 #undef bswap64

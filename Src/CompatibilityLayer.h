@@ -31,8 +31,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #define INT32_MAX 0x7fffffff
 
+typedef VOID void;
 typedef UINT8 u_char;
 
+typedef INT32 int;
 typedef INT8 int8_t;
 typedef UINT8 uint8_t;
 typedef INT16 int16_t;

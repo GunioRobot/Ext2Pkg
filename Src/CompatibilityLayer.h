@@ -46,6 +46,8 @@ typedef INT32 int32_t;
 typedef UINT32 uint32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
+typedef INT64 quad_t;
+typedef UINT65 u_quad_t;
 
 typedef INT64 off_t;
 typedef INT64 daddr_t;

@@ -22,6 +22,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <sys/cdefs.h>
 
 #define memcpy CopyMem
+#define memset SetMem
 
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
 

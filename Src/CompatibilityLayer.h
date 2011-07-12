@@ -56,6 +56,10 @@ typedef INT64 off_t;
 typedef INT64 daddr_t;
 typedef UINT64 ino_t;
 
+struct buf {
+  VOID *b_data; 
+};
+
 /**
 Switches the endianness of a 16-bit integer.
 

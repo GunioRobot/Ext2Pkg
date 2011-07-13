@@ -22,6 +22,9 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <sys/cdefs.h>
 
 #define memcpy CopyMem
+#define memset SetMem
+#define malloc(a,b,c) AllocateZeroPool(a)
+#define free FreePool
 
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
 
@@ -39,14 +42,23 @@ typedef INT8 int8_t;
 typedef UINT8 uint8_t;
 typedef INT16 int16_t;
 typedef UINT16 uint16_t;
+typedef UINT16 u_int16_t;
 typedef INT32 int32_t;
 typedef UINT32 uint32_t;
+typedef UINT32 u_int32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
+typedef UINT64 u_int64_t;
+typedef INT64 quad_t;
+typedef UINT65 u_quad_t;
 
 typedef INT64 off_t;
 typedef INT64 daddr_t;
 typedef UINT64 ino_t;
+
+struct buf {
+  VOID *b_data; 
+};
 
 /**
 Switches the endianness of a 16-bit integer.

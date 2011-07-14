@@ -303,23 +303,6 @@ EFI_STATUS EFIAPI Ext2ComponentNameGetControllerName (
   OUT CHAR16 ** ControllerName
 );
 
-
-/**
-  Checks if the volume contains a valid ext2 partition
-
-  @param  Private[in]       A pointer to the volume to check.              
-
-  @retval EFI_SUCCESS       This volume contains a valid ext2 partition.
-  @retval other             This volume does not contain a valid ext2 partition.
-
-**/
-EFI_STATUS      Ext2CheckSB (
-  IN EFI_DISK_IO_PROTOCOL * DiskIo,
-  IN UINT32 MediaId,
-  OUT struct ext2fs *e2fs
-);
-
-
 /**
   Open a file relative to the source file location.
 

@@ -103,4 +103,7 @@ returned.
 
 **/
 uint64_t bswap64(uint64_t Value);
+
+int bread (EXT2_DEV *Private, INTN Sblock, INTN SBSIZE, INTN, INTN, struct buf **Buffer);
+void brelse (struct buf *Buffer, INTN);
 #endif

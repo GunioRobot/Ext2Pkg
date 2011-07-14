@@ -51,7 +51,11 @@ typedef struct {
 
   EFI_UNICODE_STRING_TABLE *ControllerNameTable;
 
-  struct m_ext2fs fs;
+  struct m_ext2fs *fs;
+
+  char f_fstypename[16];
+  char f_mntonname[80]; 
+  INTN mnt_flag; 
 
 } EXT2_DEV;
 

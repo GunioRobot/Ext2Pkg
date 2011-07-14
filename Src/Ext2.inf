@@ -35,6 +35,7 @@
   ext2fs_extern.h
   ext2fs_vfsops.c
   ext2fs_bswap.c
+  Ext2FsVfsOps.c
   inode.h
 
 [Packages]

@@ -494,4 +494,7 @@ EFI_STATUS EFIAPI Ext2SimpleFileSystemSetInfo (
 EFI_STATUS EFIAPI Ext2SimpleFileSystemFlush (
   IN EFI_FILE_PROTOCOL * This
 );
+
+int
+ext2fs_mountroot(EXT2_DEV *mp);
 #endif

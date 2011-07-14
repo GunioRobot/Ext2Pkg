@@ -125,7 +125,6 @@ Ext2Start (
   BOOLEAN         MediaPresent;
   EFI_TPL         OldTpl;
   EXT2_DEV       *Private;
-  struct ext2fs  *e2fs;
 
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
 
@@ -162,33 +161,27 @@ Ext2Start (
   if (BlockIo->Media->MediaPresent ||
       (BlockIo->Media->RemovableMedia && !BlockIo->Media->LogicalPartition)) {
 
-    e2fs = AllocateZeroPool (sizeof (struct ext2fs));
-    if (e2fs == NULL) {
-      DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
-      return EFI_OUT_OF_RESOURCES;
-    }
-
-    Status = Ext2CheckSB (DiskIo, BlockIo->Media->MediaId, e2fs);
-
-    if (EFI_ERROR (Status)) {
-      DEBUG ((EFI_D_INFO, "Ext2Start: Error superblock\n"));
-      goto Exit;
-    }
-    // install ext2 handle if supported by the media
-    // still need to code
-
     Private = AllocateZeroPool (sizeof (EXT2_DEV));
     if (Private == NULL) {
       DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
       return EFI_OUT_OF_RESOURCES;
-    }
+    }	
 
     Private->BlockIo = BlockIo;
     Private->DiskIo = DiskIo;
-    CopyMem(&Private->fs.e2fs, e2fs, sizeof (struct ext2fs));
-    FreePool(e2fs);
+
+    ext2fs_mountroot (Private);
+
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
+    Private->Filesystem.Revision = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;
+
+    Status = gBS->InstallMultipleProtocolInterfaces (
+			&Private->Handle,
+			&gEfiSimpleFileSystemProtocolGuid,
+			&Private->FileSystem,	
+			NULL
+			);
 
   }
   //

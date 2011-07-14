@@ -35,6 +35,7 @@
   ext2fs_extern.h
   ext2fs_vfsops.c
   ext2fs_bswap.c
+  inode.h
 
 [Packages]
   MdePkg/MdePkg.dec

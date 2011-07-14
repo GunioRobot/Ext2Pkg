@@ -21,6 +21,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include <endian.h>
 #include <sys/cdefs.h>
 
+#define _KERNEL
 #define memcpy CopyMem
 #define memset SetMem
 #define malloc(a,b,c) AllocateZeroPool(a)

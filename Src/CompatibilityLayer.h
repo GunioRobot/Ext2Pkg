@@ -25,6 +25,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define memset SetMem
 #define malloc(a,b,c) AllocateZeroPool(a)
 #define free FreePool
+#define strcpy(a,b,c,d) AsciiStrCpy(a,d)
 
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
 

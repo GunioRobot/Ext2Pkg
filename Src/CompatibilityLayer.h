@@ -28,6 +28,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define strcpy(a,b,c,d) AsciiStrCpy(a,d)
 
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
+#define	howmany(x, y)	(((x)+((y)-1))/(y))
 
 #undef bswap16
 #undef bswap32

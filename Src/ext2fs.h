@@ -62,8 +62,6 @@
 #ifndef _UFS_EXT2FS_EXT2FS_H_
 #define _UFS_EXT2FS_EXT2FS_H_
 
-#include "CompatibilityLayer.h"
-
 /*
  * Each disk drive contains some number of file systems.
  * A file system consists of a number of cylinder groups.

@@ -25,9 +25,7 @@
  *
  */
 
-#include "CompatibilityLayer.h"
-#include "ext2fs.h"
-#include "ext2fs_dinode.h"
+#include "Ext2.h"
 
 /* These functions are only needed if native byte order is not big endian */
 #if BYTE_ORDER == BIG_ENDIAN

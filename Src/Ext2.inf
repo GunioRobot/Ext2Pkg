@@ -23,23 +23,22 @@
   ENTRY_POINT                    = Ext2EntryPoint
 
 [Sources]
+  CompatibilityLayer.h
+  ext2fs.h
+  inode.h
+  ext2fs_dinode.h
+  ext2fs_dir.h
   Ext2.h
+  CompatibilityLayer.c
   Ext2.c
   ComponentName.c
   Ext2Volume.c
-  CompatibilityLayer.h
-  CompatibilityLayer.c
-  ext2fs.h
-  ext2fs_dinode.h
-  ext2fs_dir.h
-  ext2fs_extern.h
-  ext2fs_vfsops.c
   ext2fs_bswap.c
   Ext2FsVfsOps.c
-  inode.h
 
 [Packages]
   MdePkg/MdePkg.dec
+  Ext2Pkg/Ext2Pkg.dec
 
 [LibraryClasses]
   UefiRuntimeServicesTableLib

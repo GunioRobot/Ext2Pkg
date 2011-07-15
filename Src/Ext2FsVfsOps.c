@@ -75,7 +75,6 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
 #include "Ext2.h"
-#include "CompatibilityLayer.h"
 #include "ext2fs_dir.h"
 
 int
@@ -97,9 +96,9 @@ int
 ext2fs_mountroot(EXT2_DEV *mp)
 {
         struct m_ext2fs *fs;
-        int error;
+        int error = -1;
 
-        if ((EFI_ERROR (vfs_rootmountalloc(mp))) {
+        if (EFI_ERROR (vfs_rootmountalloc(mp))) {
                 return (error);
         }
 
@@ -107,7 +106,7 @@ ext2fs_mountroot(EXT2_DEV *mp)
                 return (error);
         }
 
-        fs = &mp->fs;
+        fs = mp->fs;
         memset(fs->e2fs_fsmnt, 0, sizeof(fs->e2fs_fsmnt));
         (void) copystr(mp->f_mntonname, fs->e2fs_fsmnt,
             sizeof(fs->e2fs_fsmnt) - 1, 0);
@@ -130,14 +129,11 @@ ext2fs_mountfs(EXT2_DEV *mp)
 	struct m_ext2fs *m_fs;
 	int error, i, ronly;
 
-	EFI_DISK_IO_PROTOCOL *devvp;
-	devvp = mp->DiskIo;
-
 	ronly = (mp->mnt_flag & MNT_RDONLY) != 0;
 
 	bp = NULL;
 
-	error = bread(devvp, SBLOCK, SBSIZE, cred, 0, &bp);
+	error = bread(mp, SBLOCK, SBSIZE, cred, 0, &bp);
 	if (error)
 		goto out;
 	fs = (struct ext2fs *)bp->b_data;
@@ -180,7 +176,7 @@ ext2fs_mountfs(EXT2_DEV *mp)
 	m_fs->e2fs_gd = malloc(m_fs->e2fs_ngdb * m_fs->e2fs_bsize,
 	    M_UFSMNT, M_WAITOK);
 	for (i = 0; i < m_fs->e2fs_ngdb; i++) {
-		error = bread(devvp ,
+		error = bread(mp ,
 		    fsbtodb(m_fs, m_fs->e2fs.e2fs_first_dblock +
 		    1 /* superblock */ + i),
 		    m_fs->e2fs_bsize, NOCRED, 0, &bp);

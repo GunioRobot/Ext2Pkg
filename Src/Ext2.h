@@ -34,8 +34,15 @@
 #include <Guid/FileSystemInfo.h>
 #include <Guid/FileInfo.h>
 #include <Guid/FileSystemVolumeLabelInfo.h>
+#include <Base.h>
 
+#include <param.h>
+#include <endian.h>
+#include <sys/cdefs.h>
+#include "CompatibilityLayer.h"
+#include "inode.h"
 #include "ext2fs.h"
+#include "ext2fs_dinode.h"
 
 #define EXT2_PRIVATE_DATA_SIGNATURE SIGNATURE_32 ('E','x','t','2')
 
@@ -496,5 +503,9 @@ EFI_STATUS EFIAPI Ext2SimpleFileSystemFlush (
 );
 
 int
-ext2fs_mountroot(EXT2_DEV *mp);
+ext2fs_mountroot(IN OUT EXT2_DEV *mp);
+
+int bread (IN OUT EXT2_DEV *, IN INTN, IN INTN, IN INTN, IN INTN, OUT buf_t **);
+void brelse (buf_t *Buffer, INTN);
+
 #endif

@@ -67,8 +67,8 @@
 #ifndef _UFS_EXT2FS_EXT2FS_DIR_H_
 #define	_UFS_EXT2FS_EXT2FS_DIR_H_
 
-#include "CompatibilityLayer.h"
-
+#include "Ext2.h"
+#include "ext2fs_dinode.h"
 /*
  * Theoretically, directories can be more than 2Gb in length, however, in
  * practice this seems unlikely. So, we define the type doff_t as a 32-bit
@@ -128,7 +128,7 @@ struct	ext2fs_direct {
 
 #define E2IFTODT(mode)    (((mode) & 0170000) >> 12)
 
-static __inline uint8_t inot2ext2dt(uint16_t) __unused;
+// static __inline uint8_t inot2ext2dt(uint16_t) __unused;
 static __inline uint8_t
 inot2ext2dt(uint16_t type)
 {

@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
 #include "CompatibilityLayer.h"
-#include "Ext2.h"
+#include <Library/BaseLib.h>
 
 /**
 Switches the endianness of a 16-bit integer.
@@ -67,34 +67,3 @@ uint64_t bswap64(uint64_t Value)
   return SwapBytes64(Value);
 }
 
-int bread (EXT2_DEV *Private, INTN Sblock, INTN SbSize, INTN, INTN, struct buf **Buffer)
-{
-    EFI_DISK_IO_PROTOCOL *DiskIo = Private->DiskIo;
-    EFI_BLOCK_IO_PROTOCOL *BlockIo = Private-BlockIo;
-    UINT32 MediaId = BlockIo->Media->MediaId;
-    
-    EFI_STATUS Status;
-    struct buf *TempBuf;
-    
-    TempBuf->b_data = AllocateZeroPool (sizeof (SbSize));
-
-    if (TempBuf->b_data == NULL) {
-      DEBUG ((EFI_D_INFO, "bread: error AllocateZeroPool\n"));
-      return EFI_OUT_OF_RESOURCES;
-    }
-
-    Status = DiskIo->ReadDisk (DiskIo, MediaId, Sblock, SbSize, Buffer->b_data);
-
-    if (EFI_ERROR (Status)) {
-     DEBUG ((EFI_D_INFO, "bread: error reading ext2 superblock\n"));
-     return Status;
-    }
-
-    (*Buffer)->b_data = TempBuf->b_data;
-    return EFI_SUCCESS;	
-}
-
-void brelse (struct buf *Buffer, INTN)
-{
-  FreePool (Buffer->b_data);
-}

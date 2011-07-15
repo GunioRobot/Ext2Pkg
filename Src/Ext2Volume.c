@@ -24,4 +24,38 @@ Ext2OpenVolume (
   return EFI_SUCCESS;
 }
 
+int bread (EXT2_DEV *Private, INTN Sblock, INTN SbSize, INTN a, INTN b, buf_t **Buffer)
+{
+    EFI_DISK_IO_PROTOCOL *DiskIo = Private->DiskIo;
+    EFI_BLOCK_IO_PROTOCOL *BlockIo = Private->BlockIo;
+    UINT32 MediaId = BlockIo->Media->MediaId;
+
+    EFI_STATUS Status;
+    struct buf *TempBuf;
+
+    TempBuf = AllocateZeroPool (sizeof (struct buf));
+    TempBuf->b_data = AllocateZeroPool (sizeof (SbSize));
+
+    if (TempBuf->b_data == NULL) {
+      DEBUG ((EFI_D_INFO, "bread: error AllocateZeroPool\n"));
+      return -1;
+    }
+
+    Status = DiskIo->ReadDisk (DiskIo, MediaId, Sblock, SbSize, TempBuf->b_data);
+
+    if (EFI_ERROR (Status)) {
+     DEBUG ((EFI_D_INFO, "bread: error reading ext2 superblock\n"));
+     return Status;
+    }
+
+    *Buffer = TempBuf;
+    return EFI_SUCCESS;
+}
+
+void brelse (buf_t *Buffer, INTN a)
+{
+  struct buf *b = Buffer;
+  FreePool (b->b_data);
+}
+
 

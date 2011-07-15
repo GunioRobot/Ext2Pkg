@@ -17,19 +17,24 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _COMPATIBILITYLAYER_H_
 #define _COMPATIBILITYLAYER_H_
 
-#include <Library/BaseLib.h>
-#include <endian.h>
-#include <sys/cdefs.h>
-
 #define _KERNEL
 #define memcpy CopyMem
-#define memset SetMem
+#define memset(a,b,c) SetMem(a,c,b)
 #define malloc(a,b,c) AllocateZeroPool(a)
 #define free(a,b) FreePool(a)
 #define strcpy(a,b,c,d) AsciiStrCpy(a,d)
+#define copystr(a,b,c,d) AsciiStrCpy(a,d)
+#define LIST_ENTRY(a) LIST_ENTRY
+#define printf(a,...) DEBUG((EFI_D_INFO,(a),##__VA_ARGS__)) 
+#define cred 0
 
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
 #define	howmany(x, y)	(((x)+((y)-1))/(y))
+
+#define MNT_RDONLY 1
+#define EINVAL -1
+#define EROFS -2
+#define NOCRED 0
 
 #undef bswap16
 #undef bswap32
@@ -37,10 +42,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #define INT32_MAX 0x7fffffff
 
-typedef VOID void;
 typedef UINT8 u_char;
 
-typedef INT32 int;
 typedef INT8 int8_t;
 typedef UINT8 uint8_t;
 typedef INT16 int16_t;
@@ -53,15 +56,18 @@ typedef INT64 int64_t;
 typedef UINT64 uint64_t;
 typedef UINT64 u_int64_t;
 typedef INT64 quad_t;
-typedef UINT65 u_quad_t;
+typedef UINT64 u_quad_t;
 
 typedef INT64 off_t;
+typedef INT32 doff_t; //weird
 typedef INT64 daddr_t;
 typedef UINT64 ino_t;
 
 struct buf {
   VOID *b_data; 
 };
+
+typedef struct buf buf_t;
 
 /**
 Switches the endianness of a 16-bit integer.
@@ -105,6 +111,4 @@ returned.
 **/
 uint64_t bswap64(uint64_t Value);
 
-int bread (EXT2_DEV *Private, INTN Sblock, INTN SBSIZE, INTN, INTN, struct buf **Buffer);
-void brelse (struct buf *Buffer, INTN);
 #endif

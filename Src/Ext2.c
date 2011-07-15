@@ -179,7 +179,7 @@ Ext2Start (
     Status = gBS->InstallMultipleProtocolInterfaces (
 			&Private->Handle,
 			&gEfiSimpleFileSystemProtocolGuid,
-			&Private->FileSystem,	
+			&Private->Filesystem,	
 			NULL
 			);
 

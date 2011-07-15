@@ -54,7 +54,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _UFS_UFS_INODE_H_
 #define	_UFS_UFS_INODE_H_
 
-#include "CompatibilityLayer.h"
+#include "Ext2.h"
 /*
  * Per-filesystem inode extensions.
  */

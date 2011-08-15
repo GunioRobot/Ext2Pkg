@@ -76,36 +76,57 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include "Ext2.h"
 #include "ext2fs_dir.h"
+#include "inode.h"
+#include "CompatibilityLayer.h"
 
+//extern u_long ext2gennumber;
+
+#define struct
 int
-ext2fs_mountfs(EXT2_DEV *mp);
+ext2fs_mountfs(struct vnode *devvp, struct mount *mp);
+#undef struct
 
 static int
 ext2fs_checksb(struct ext2fs *fs, int ronly);
 
-int vfs_rootmountalloc (EXT2_DEV *mp) {
+#define struct
+int vfs_rootmountalloc (int mext2fs, char *dev, struct mount **mp) {
+#undef struct
 
-    mp->f_mntonname[0] = '/';
-    mp->f_mntonname[1] = '\0';
+    (*mp)->f_mntonname[0] = '/';
+    (*mp)->f_mntonname[1] = '\0';
 
     return 0;
 
 }
 
 int
-ext2fs_mountroot(EXT2_DEV *mp)
+#define struct
+ext2fs_mountroot(struct mount *mp)
 {
+	struct vnode *rootvp;
+#undef struct
         struct m_ext2fs *fs;
-        int error = -1;
-
-        if (EFI_ERROR (vfs_rootmountalloc(mp))) {
+//        struct mount *mp;
+        int error;
+        
+        DEBUG ((EFI_D_INFO, "mountroot 1\n"));
+        if (device_class(root_device) != DV_DISK)
+    		return (ENONDEV);
+        
+        DEBUG ((EFI_D_INFO, "mountroot 2\n"));
+        if ((error = vfs_rootmountalloc(MOUNT_EXT2FS, "root_device", &mp))) {
+    		vrele(rootvp);
                 return (error);
         }
-
-        if ((error = ext2fs_mountfs(mp)) != 0) {
+        
+        DEBUG ((EFI_D_INFO, "mountroot 3\n"));
+        if ((error = ext2fs_mountfs(rootvp, mp)) != 0) {
+    		vfs_unbusy(mp,false,NULL);
+    		vfs_destroy(mp);
                 return (error);
         }
-
+      DEBUG ((EFI_D_INFO, "mountroot 4\n"));
         fs = mp->fs;
         memset(fs->e2fs_fsmnt, 0, sizeof(fs->e2fs_fsmnt));
         (void) copystr(mp->f_mntonname, fs->e2fs_fsmnt,
@@ -115,6 +136,7 @@ ext2fs_mountroot(EXT2_DEV *mp)
                 (void) copystr(mp->f_mntonname, fs->e2fs.e2fs_fsmnt,
                     sizeof(fs->e2fs.e2fs_fsmnt) - 1, 0);
         }
+        vfs_unbusy(mp, false, NULL);
         return (0);
 }
 
@@ -122,7 +144,9 @@ ext2fs_mountroot(EXT2_DEV *mp)
  * Common code for mount and mountroot
  */
 int
-ext2fs_mountfs(EXT2_DEV *mp)
+#define struct
+ext2fs_mountfs(struct vnode *devvp, struct mount *mp)
+#undef struct
 {
 	struct buf *bp;
 	struct ext2fs *fs;
@@ -131,17 +155,21 @@ ext2fs_mountfs(EXT2_DEV *mp)
 
 	ronly = (mp->mnt_flag & MNT_RDONLY) != 0;
 
+      DEBUG ((EFI_D_INFO, "mountrootf 3\n"));
 	bp = NULL;
-
-	error = bread(mp, SBLOCK, SBSIZE, cred, 0, &bp);
+	error = bread(devvp, SBLOCK, SBSIZE, cred, 0, &bp);
 	if (error)
 		goto out;
 	fs = (struct ext2fs *)bp->b_data;
+	
+      DEBUG ((EFI_D_INFO, "mountrootf 4\n"));
 	error = ext2fs_checksb(fs, ronly);
 	if (error)
 		goto out;
 	mp->fs = malloc(sizeof(struct m_ext2fs), M_UFSMNT, M_WAITOK);
 	memset(mp->fs, 0, sizeof(struct m_ext2fs));
+	
+      DEBUG ((EFI_D_INFO, "mountrootf 5\n"));
 	e2fs_sbload((struct ext2fs *)bp->b_data, &mp->fs->e2fs);
 	brelse(bp, 0);
 	bp = NULL;
@@ -151,6 +179,8 @@ ext2fs_mountfs(EXT2_DEV *mp)
 #ifdef DEBUG_EXT2
 	printf("ext2 ino size %zu\n", EXT2_DINODE_SIZE(m_fs));
 #endif
+
+      DEBUG ((EFI_D_INFO, "mountrootf 6\n"));
 	if (ronly == 0) {
 		if (m_fs->e2fs.e2fs_state == E2FS_ISCLEAN)
 			m_fs->e2fs.e2fs_state = 0;
@@ -159,6 +189,7 @@ ext2fs_mountfs(EXT2_DEV *mp)
 		m_fs->e2fs_fmod = 1;
 	}
 
+      DEBUG ((EFI_D_INFO, "mountrootf 7\n"));
 	/* compute dynamic sb infos */
 	m_fs->e2fs_ncg =
 	    howmany(m_fs->e2fs.e2fs_bcount - m_fs->e2fs.e2fs_first_dblock,
@@ -172,11 +203,12 @@ ext2fs_mountfs(EXT2_DEV *mp)
 	    howmany(m_fs->e2fs_ncg, m_fs->e2fs_bsize / sizeof(struct ext2_gd));
 	m_fs->e2fs_ipb = m_fs->e2fs_bsize / EXT2_DINODE_SIZE(m_fs);
 	m_fs->e2fs_itpg = m_fs->e2fs.e2fs_ipg / m_fs->e2fs_ipb;
-
 	m_fs->e2fs_gd = malloc(m_fs->e2fs_ngdb * m_fs->e2fs_bsize,
 	    M_UFSMNT, M_WAITOK);
 	for (i = 0; i < m_fs->e2fs_ngdb; i++) {
-		error = bread(mp ,
+	
+      DEBUG ((EFI_D_INFO, "mountrootf 8\n"));
+		error = bread(devvp ,
 		    fsbtodb(m_fs, m_fs->e2fs.e2fs_first_dblock +
 		    1 /* superblock */ + i),
 		    m_fs->e2fs_bsize, NOCRED, 0, &bp);
@@ -192,14 +224,84 @@ ext2fs_mountfs(EXT2_DEV *mp)
 		bp = NULL;
 	}
 
+      DEBUG ((EFI_D_INFO, "mountrootf 9\n"));
 	return (0);
 
 out:
 	brelse(bp, 0);
-
 	return (error);
 }
 
+
+#define struct
+int
+ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
+#undef struct
+{
+        struct m_ext2fs *fs;
+        struct inode *ip;
+        struct buf *bp;
+#define struct
+        struct vnode *vp;
+#undef struct
+        int error;
+        void *cp;
+
+        error = getnewvnode (VT_EXT2FS, mp, ext2fs_vnodeop_p, NULL, &vp);
+        if (error) {
+	    *vpp = NULL;
+	    return (error);
+        }
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
+	ip = pool_get(&ext2fs_inode_pool, PR_WAITOK);
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));      
+        memset(ip, 0, sizeof(struct inode));
+        vp->File = ip;
+        ip->i_e2fs = fs = mp->fs;
+        ip->i_number = ino;
+        ip->i_e2fs_last_lblk = 0;
+        ip->i_e2fs_last_blk = 0;
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
+        /* Read in the disk contents for the inode, copy into the inode. */
+        error = bread(vp, fsbtodb(fs, ino_to_fsba(fs, ino)),
+            (int)fs->e2fs_bsize, NOCRED, 0, &bp);
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
+        if (error) {
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
+                /*
+                 * The inode does not contain anything useful, so it would
+                 * be misleading to leave it on its hash chain. With mode
+                 * still zero, it will be unlinked and returned to the free
+                 * list by vput().
+                 */
+                vput(vp);
+                free (ip, 0);
+                brelse(bp, 0);
+                return (error);
+        }
+        
+        cp = (char *)bp->b_data + (ino_to_fsbo(fs, ino) * EXT2_DINODE_SIZE(fs));
+        ip->i_din.e2fs_din = malloc (sizeof(struct ext2fs_dinode), 0 ,0);
+        e2fs_iload((struct ext2fs_dinode *)cp, ip->i_din.e2fs_din);
+        brelse(bp, 0);
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));        
+        /* If the inode was deleted, reset all fields */
+        if (ip->i_e2fs_dtime != 0) {
+    	    ip->i_e2fs_mode = ip->i_e2fs_nblock = 0;
+    	//    (void)ext2fs_setsize(ip, 0);
+    	    memset(ip->i_e2fs_blocks, 0, sizeof(ip->i_e2fs_blocks));
+        }
+
+        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
+	*vpp = vp;
+        return (0);
+}
 
 static int
 ext2fs_checksb(struct ext2fs *fs, int ronly)

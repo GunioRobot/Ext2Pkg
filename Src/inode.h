@@ -54,7 +54,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _UFS_UFS_INODE_H_
 #define	_UFS_UFS_INODE_H_
 
-#include "Ext2.h"
+#include "CompatibilityLayer.h"
+
 /*
  * Per-filesystem inode extensions.
  */
@@ -75,6 +76,7 @@ struct ext2fs_inode_ext {
  */
 struct inode {
 	LIST_ENTRY(inode) i_hash;/* Hash chain. */
+	
 	u_int32_t i_flag;	/* flags, see below */
 	ino_t	  i_number;	/* The identity of the inode. */
 

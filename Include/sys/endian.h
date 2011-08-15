@@ -58,7 +58,7 @@
 #ifndef _LOCORE
 
 /* C-family endian-ness definitions */
-
+/*
 #include  <sys/ansi.h>
 #include  <sys/types.h>
 
@@ -79,7 +79,8 @@ uint32_t ntohl(uint32_t) __attribute__((__const__));
 uint16_t ntohs(uint16_t) __attribute__((__const__));
 __END_DECLS
 
-#endif /* !_LOCORE */
+#endif 
+*/ /* !_LOCORE */
 #endif /* _XOPEN_SOURCE || _NETBSD_SOURCE */
 
 
@@ -112,7 +113,7 @@ __END_DECLS
 
 #ifndef _LOCORE
 
-#include  <machine/bswap.h>
+// #include  <machine/bswap.h>
 
 /*
  * Macros for network/external number representation conversion.

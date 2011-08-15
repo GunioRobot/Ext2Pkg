@@ -128,7 +128,7 @@ struct	ext2fs_direct {
 
 #define E2IFTODT(mode)    (((mode) & 0170000) >> 12)
 
-// static __inline uint8_t inot2ext2dt(uint16_t) __unused;
+static __inline uint8_t inot2ext2dt(uint16_t) __unused;
 static __inline uint8_t
 inot2ext2dt(uint16_t type)
 {

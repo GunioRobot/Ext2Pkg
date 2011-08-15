@@ -45,3 +45,8 @@
 
 [Components]
   Ext2Pkg/Src/Ext2.inf
+
+[BuildOptions]
+  INTEL:*_*_*_CC_FLAGS          = /D _NETBSD_SOURCE
+   MSFT:*_*_*_CC_FLAGS          = /D _NETBSD_SOURCE
+    GCC:*_*_*_CC_FLAGS          = -D_NETBSD_SOURCE -D_POSIX_SOURCE

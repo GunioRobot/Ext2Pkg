@@ -53,7 +53,7 @@ Ext2Supported (
 {
   EFI_STATUS      Status;
   EFI_DISK_IO_PROTOCOL *DiskIo;
-
+  DEBUG ((EFI_D_INFO, "Ext2Supported: enter\n"));
   //
   // Open the IO Abstraction(s) needed to perform the supported test
   //
@@ -126,8 +126,9 @@ Ext2Start (
   EFI_TPL         OldTpl;
   EXT2_DEV       *Private;
 
+  DEBUG ((EFI_D_INFO, "Ext2Start: enter1\n"));
   OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
-
+  DEBUG ((EFI_D_INFO, "Ext2Stop: enter2\n"));
   Status = gBS->OpenProtocol (ControllerHandle,
 			      &gEfiBlockIoProtocolGuid,
 			      (VOID **) & BlockIo,
@@ -167,14 +168,28 @@ Ext2Start (
       return EFI_OUT_OF_RESOURCES;
     }	
 
+    Private->Handle = ControllerHandle;
     Private->BlockIo = BlockIo;
     Private->DiskIo = DiskIo;
-
-    ext2fs_mountroot (Private);
-
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
     Private->Filesystem.Revision = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION;
     Private->Filesystem.OpenVolume = Ext2OpenVolume;
+    Private->Root = NULL;
+    DEBUG ((EFI_D_INFO, "Ext2Start: before ext2fs_mountroot ()\n"));
+    if (ext2fs_mountroot (Private) != 0)
+     {
+                DEBUG ((EFI_D_INFO, "Ext2Start: weird inside out ()\n"));
+
+            gBS->CloseProtocol (ControllerHandle,
+                        &gEfiDiskIoProtocolGuid,
+                        This->DriverBindingHandle, ControllerHandle);
+        FreePool (Private);
+        Status = EFI_UNSUPPORTED;;
+        goto Exit;
+     }
+   
+    DEBUG ((EFI_D_INFO, "Ext2Start: after ext2fs_mountroot ()\n"));
+    Ext2DebugSb(Private);
 
     Status = gBS->InstallMultipleProtocolInterfaces (
 			&Private->Handle,
@@ -243,6 +258,7 @@ Ext2Stop (
   BlockIo = NULL;
   Private = NULL;
 
+  DEBUG ((EFI_D_INFO, "Ext2Stop: enter\n"));
   //
   // Get our context back
   //

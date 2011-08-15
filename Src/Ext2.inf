@@ -24,6 +24,7 @@
 
 [Sources]
   CompatibilityLayer.h
+  Ext2File.h
   ext2fs.h
   inode.h
   ext2fs_dinode.h
@@ -34,7 +35,14 @@
   ComponentName.c
   Ext2Volume.c
   ext2fs_bswap.c
+  Ext2NetBSD.c
   Ext2FsVfsOps.c
+  Ext2Debug.c
+  Ext2File.c
+  ext2fs_subr.c
+  ext2fs_inode.c
+  ext2fs_readwrite.c
+  ext2fs_bmap.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -66,3 +74,6 @@
 [Pcd]
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang
   gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang
+
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS          = -D_NETBSD_SOURCE -D_POSIX_SOURCE

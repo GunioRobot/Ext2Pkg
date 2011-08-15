@@ -62,6 +62,10 @@
 #ifndef _UFS_EXT2FS_EXT2FS_H_
 #define _UFS_EXT2FS_EXT2FS_H_
 
+#include <endian.h>
+#include <sys/cdefs.h>
+#include "CompatibilityLayer.h"
+
 /*
  * Each disk drive contains some number of file systems.
  * A file system consists of a number of cylinder groups.
@@ -266,7 +270,7 @@ struct ext2_gd {
  * copy of the super and cylinder group descriptors blocks only if it's
  * 1, a power of 3, 5 or 7
  */
-/*
+
 static __inline int cg_has_sb(int) __unused;
 static __inline int
 cg_has_sb(int i)
@@ -282,7 +286,7 @@ cg_has_sb(int i)
 			return 1;
 	return 0;
 }
-*/
+
 /* EXT2FS metadatas are stored in little-endian byte order. These macros
  * helps reading theses metadatas
  */

@@ -64,6 +64,27 @@
  * Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/cdefs.h>
+__KERNEL_RCSID(0, "$NetBSD: ext2fs_bmap.c,v 1.25 2009/10/19 18:41:17 bouyer Exp $");
+
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/buf.h>
+#include <sys/proc.h>
+#include <sys/vnode.h>
+#include <sys/mount.h>
+#include <sys/resourcevar.h>
+#include <sys/trace.h>
+
+#include <miscfs/specfs/specdev.h>
+
+#include <ufs/ufs/inode.h>
+#include <ufs/ufs/ufsmount.h>
+#include <ufs/ufs/ufs_extern.h>
+#include <ufs/ext2fs/ext2fs.h>
+#include <ufs/ext2fs/ext2fs_extern.h>
+#else
 /** @file
 
 Modified for edk2
@@ -81,6 +102,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include "Ext2.h"
 #include "CompatibilityLayer.h"
+#endif
+
 #define struct
 static int ext2fs_bmaparray(struct vnode *, daddr_t, daddr_t *,
 #undef struct

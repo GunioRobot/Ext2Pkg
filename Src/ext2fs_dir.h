@@ -64,6 +64,10 @@
  * Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _UFS_EXT2FS_EXT2FS_DIR_H_
+#define	_UFS_EXT2FS_EXT2FS_DIR_H_
+
+#ifdef _EXT2_TIANOCORE_SOURCE
 /** @file
 
 Modified for edk2
@@ -79,11 +83,10 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
-#ifndef _UFS_EXT2FS_EXT2FS_DIR_H_
-#define	_UFS_EXT2FS_EXT2FS_DIR_H_
-
 #include "Ext2.h"
 #include "ext2fs_dinode.h"
+#endif
+
 /*
  * Theoretically, directories can be more than 2Gb in length, however, in
  * practice this seems unlikely. So, we define the type doff_t as a 32-bit

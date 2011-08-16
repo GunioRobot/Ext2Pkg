@@ -64,6 +64,12 @@
  *  Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _UFS_EXT2FS_EXT2FS_DINODE_H_
+#define _UFS_EXT2FS_EXT2FS_DINODE_H_
+
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/stat.h>
+#else
 /** @file
 
 Modified for edk2
@@ -79,10 +85,8 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
-#ifndef _UFS_EXT2FS_EXT2FS_DINODE_H_
-#define _UFS_EXT2FS_EXT2FS_DINODE_H_
-
 #include "CompatibilityLayer.h"
+#endif
 
 /*
  * The root inode is the root of the file system.  Inode 0 can't be used for

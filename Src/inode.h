@@ -54,7 +54,30 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _UFS_UFS_INODE_H_
 #define	_UFS_UFS_INODE_H_
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/vnode.h>
+#include <ufs/ufs/dinode.h>
+#include <ufs/ufs/dir.h>
+#include <ufs/ufs/quota.h>
+#include <ufs/ext2fs/ext2fs_dinode.h>
+#include <miscfs/genfs/genfs_node.h>
+#else
+/** @file
+
+Modified for edk2
+
+Copyright (c) 2011, Alin-Florin Rus-Rebreanu <alin@softwareliber.ro>
+
+This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution. The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
+
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+**/
 #include "CompatibilityLayer.h"
+#endif
 
 /*
  * Per-filesystem inode extensions.

@@ -25,6 +25,20 @@
  *
  */
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/cdefs.h>
+__KERNEL_RCSID(0, "$NetBSD: ext2fs_bswap.c,v 1.16 2009/10/19 18:41:17 bouyer Exp $");
+
+#include <sys/types.h>
+#include <ufs/ext2fs/ext2fs.h>
+#include <ufs/ext2fs/ext2fs_dinode.h>
+
+#if defined(_KERNEL)
+#include <sys/systm.h>
+#else
+#include <string.h>
+#endif
+#else
 /** @file
 
 Modified for edk2
@@ -41,6 +55,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
 #include "Ext2.h"
+#endif
 
 /* These functions are only needed if native byte order is not big endian */
 #if BYTE_ORDER == BIG_ENDIAN

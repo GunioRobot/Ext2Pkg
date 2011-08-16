@@ -59,6 +59,30 @@
  * Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/cdefs.h>
+__KERNEL_RCSID(0, "$NetBSD: ext2fs_inode.c,v 1.74 2011/06/16 09:21:03 hannken Exp $");
+
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/mount.h>
+#include <sys/proc.h>
+#include <sys/file.h>
+#include <sys/buf.h>
+#include <sys/vnode.h>
+#include <sys/kernel.h>
+#include <sys/malloc.h>
+#include <sys/trace.h>
+#include <sys/resourcevar.h>
+#include <sys/kauth.h>
+
+#include <ufs/ufs/inode.h>
+#include <ufs/ufs/ufsmount.h>
+#include <ufs/ufs/ufs_extern.h>
+
+#include <ufs/ext2fs/ext2fs.h>
+#include <ufs/ext2fs/ext2fs_extern.h>
+#else
 /** @file
 
 Modified for edk2
@@ -78,6 +102,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #include "ext2fs.h"
 #include "CompatibilityLayer.h"
 #include "ext2fs_dinode.h"
+#endif
 
 /*
  * Get the size of an inode.

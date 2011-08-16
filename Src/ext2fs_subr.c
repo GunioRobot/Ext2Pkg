@@ -59,6 +59,21 @@
  * Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/cdefs.h>
+__KERNEL_RCSID(0, "$NetBSD: ext2fs_subr.c,v 1.27 2009/10/19 18:41:17 bouyer Exp $");
+
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/vnode.h>
+#include <sys/buf.h>
+#include <sys/inttypes.h>
+#include <sys/kauth.h>
+
+#include <ufs/ufs/inode.h>
+#include <ufs/ext2fs/ext2fs.h>
+#include <ufs/ext2fs/ext2fs_extern.h>
+#else
 /** @file
 
 Modified for edk2
@@ -76,6 +91,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #include "inode.h"
 #include "Ext2.h"
+#endif
 
 /*
  * Return buffer with the contents of block "offset" from the beginning of

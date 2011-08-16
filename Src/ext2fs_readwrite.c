@@ -59,6 +59,34 @@
  * Modified for ext2fs by Manuel Bouyer.
  */
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/cdefs.h>
+__KERNEL_RCSID(0, "$NetBSD: ext2fs_readwrite.c,v 1.57 2011/06/12 03:36:00 rmind Exp $");
+
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/resourcevar.h>
+#include <sys/kernel.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/buf.h>
+#include <sys/proc.h>
+#include <sys/mount.h>
+#include <sys/vnode.h>
+#include <sys/malloc.h>
+#include <sys/signalvar.h>
+#include <sys/kauth.h>
+
+#include <ufs/ufs/inode.h>
+#include <ufs/ufs/ufsmount.h>
+#include <ufs/ufs/ufs_extern.h>
+#include <ufs/ext2fs/ext2fs.h>
+#include <ufs/ext2fs/ext2fs_extern.h>
+
+
+#define doclusterread 0 /* XXX underway */
+#define doclusterwrite 0
+#else
 /** @file
 
 Modified for edk2
@@ -74,16 +102,16 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
-/*
- * Vnode op for reading.
- */
-/* ARGSUSED */
-
 #include "Ext2File.h"
 #include "Ext2.h"
 #include "ext2fs.h"
 #define _BMAP_BREAD_ 1
+#endif
 
+/*
+ * Vnode op for reading.
+ */
+/* ARGSUSED */
 int
 ext2fs_read(void *v)
 {
@@ -202,4 +230,6 @@ out:
 	}*/
 	return (error);
 }
+#ifdef _EXT2_TIANOCORE_SOURCE
 #undef _BMAP_BREAD_
+#endif

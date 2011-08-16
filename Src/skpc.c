@@ -31,7 +31,7 @@
  *      @(#)ufs_subr.c  7.13 (Berkeley) 6/28/90
  */
 
-#include "CompatibilityLayer"
+#include "CompatibilityLayer.h"
 
 int
 skpc(int mask, size_t size, u_char *cp)

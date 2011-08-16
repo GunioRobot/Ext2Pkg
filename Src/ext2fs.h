@@ -62,9 +62,13 @@
 #ifndef _UFS_EXT2FS_EXT2FS_H_
 #define _UFS_EXT2FS_EXT2FS_H_
 
+#ifndef _EXT2_TIANOCORE_SOURCE
+#include <sys/bswap.h>
+#else
 #include <endian.h>
 #include <sys/cdefs.h>
 #include "CompatibilityLayer.h"
+#endif
 
 /*
  * Each disk drive contains some number of file systems.

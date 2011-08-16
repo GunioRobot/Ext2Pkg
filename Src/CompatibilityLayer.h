@@ -83,6 +83,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define um_seqinc 1
 #define ump mp
 
+#define ubc_uiomove(a,b,c,d,e) ext2_ubc_uiomove(vp, b, c, d, e)
+
 #define MAXBSIZE 65536
 
 #define INT32_MAX 0x7fffffff

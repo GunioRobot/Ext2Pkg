@@ -104,10 +104,49 @@ int uiomove(void *buf, size_t n, struct uio *uio)
     return (error);
 }
 
-int ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
+int ext2_ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
 		int advice, int flags)
 {
+    EXT2_EFI_FILE_PRIVATE *vp = uobj;
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *sfs = vp->Filesystem;
+    EXT2_DEV *ext_fs = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(sfs);
 
- return 0;
+    int error;
+    struct buf *bp;
+    daddr_t lbn, nextlbn;
+    long size, xfersize, blkoffset;
+    struct m_ext2fs *fs = ext_fs->fs;
+    struct inode *ip = vp->File;
 
+    lbn = lblkno(fs, uio->uio_offset);
+    nextlbn = lbn + 1;
+    size = fs->e2fs_bsize;
+    blkoffset = blkoff(fs, uio->uio_offset);
+    xfersize = fs->e2fs_bsize - blkoffset;
+    if (uio->uio_resid < xfersize)
+	xfersize = uio->uio_resid;
+    if (todo < xfersize)
+	xfersize = todo;
+	
+    if (lblktosize(fs, nextlbn) >= ext2fs_size(ip))
+	error = bread(vp, lbn, size, 1, 0, &bp);
+    else {
+	int nextsize = fs->e2fs_bsize;
+	error = breadn(vp, lbn, size, &nextlbn, &nextsize, 1, 1, 0, &bp);
+    }
+    if (error)
+	return error;
+	
+    size -= bp->b_resid;
+    if (size < xfersize) {
+	if (size == 0)
+	    return 0;
+	xfersize = size;
+    }
+    error = uiomove((char *)bp->b_data + blkoffset, xfersize, uio);
+    if (error)
+	return error;
+    brelse(bp, 0);
+    
+    return 0;
 }

@@ -255,7 +255,7 @@ uint64_t ext2fs_size(struct inode *ip);
 int ext2fs_setsize(struct inode *ip, uint64_t size);
 
 int
-ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
+ext2_ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
 	 int advice, int flags);
 int uiomove(void *buf, size_t n, struct uio *uio);
 int ext2fs_read(void *v);

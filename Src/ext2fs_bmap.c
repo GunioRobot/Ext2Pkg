@@ -137,16 +137,15 @@ ext2fs_bmaparray(struct vnode *vp,
 		int *nump, int *runp)
 {
 	struct inode *ip;
-//	struct buf *bp, *cbp;
+	struct buf *bp, *cbp;
 #define struct
 //	struct ufsmount *ump;
 	struct mount *mp;
 #undef struct
-//	struct indir a[NIADDR+1]; //, *xap;
-//	daddr_t daddr;
-//	daddr_t metalbn;
-	int //error, 
-	    maxrun = 0;//, num;
+	struct indir a[NIADDR+1], *xap;
+	daddr_t daddr;
+	daddr_t metalbn;
+	int error, maxrun = 0, num;
 
 	ip = VTOI(vp);
 	mp = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(vp->Filesystem);
@@ -182,7 +181,7 @@ ext2fs_bmaparray(struct vnode *vp,
 				++bn, ++*runp);
 		return (0);
 	}
-/*
+
 	xap = ap == NULL ? a : ap;
 	if (!nump)
 		nump = &num;
@@ -190,10 +189,10 @@ ext2fs_bmaparray(struct vnode *vp,
 		return (error);
 
 	num = *nump;
-*/
+
 	/* Get disk address out of indirect block array */
 	/* XXX ondisk32 */
-/*	daddr = fs2h32(ip->i_e2fs_blocks[NDADDR + xap->in_off]);
+	daddr = fs2h32(ip->i_e2fs_blocks[NDADDR + xap->in_off]);
 
 #ifdef DIAGNOSTIC
     if (num > NIADDR + 1 || num < 1) {
@@ -202,12 +201,12 @@ ext2fs_bmaparray(struct vnode *vp,
 	}
 #endif
 	for (bp = NULL, ++xap; --num; ++xap) {
-*/		/*
+		/*
 		 * Exit the loop if there is no disk address assigned yet and
 		 * the indirect block isn't in the cache, or if we were
 		 * looking for an indirect block and we've found it.
 		 */
-/*
+
 		metalbn = xap->in_lbn;
 		if (metalbn == bn)
 			break;
@@ -218,23 +217,24 @@ ext2fs_bmaparray(struct vnode *vp,
 			if (cbp == NULL)
 				break;
 		}
-*/		/*
+		/*
 		 * If we get here, we've either got the block in the cache
 		 * or we have a disk address for it, go fetch it.
 		 */
-/*		if (bp)
+		if (bp)
 			brelse(bp, 0);
 
 		xap->in_exists = 1;
-		bp = getblk(vp, metalbn, mp->mnt_stat.f_iosize, 0, 0);
+		//!!!!!!!!!!!!!!replaced 3rd param with 1 ftw
+		bp = getblk(vp, metalbn, 1, 0, 0);
 		if (bp == NULL) {
-*/
+
 			/*
 			 * getblk() above returns NULL only iff we are
 			 * pagedaemon.  See the implementation of getblk
 			 * for detail.
 			 */
-/*
+
 			 return (ENOMEM);
 		}
 		if (bp->b_oflags & (BO_DONE | BO_DELWRI)) {
@@ -249,18 +249,18 @@ ext2fs_bmaparray(struct vnode *vp,
 			bp->b_blkno = blkptrtodb(ump, daddr);
 			bp->b_flags |= B_READ;
 			VOP_STRATEGY(vp, bp);
-			curlwp->l_ru.ru_inblock++;	*//* XXX */
-/*			if ((error = biowait(bp)) != 0) {
+//			curlwp->l_ru.ru_inblock++;	*//* XXX */
+			if ((error = biowait(bp)) != 0) {
 				brelse(bp, 0);
 				return (error);
 			}
 		}
-*/
+
 		/* XXX ondisk32 */
-/*		daddr = fs2h32(((int32_t *)bp->b_data)[xap->in_off]);
+		daddr = fs2h32(((int32_t *)bp->b_data)[xap->in_off]);
 		if (num == 1 && daddr && runp)
-*/			/* XXX ondisk32 */
-/*			for (bn = xap->in_off + 1;
+			/* XXX ondisk32 */
+			for (bn = xap->in_off + 1;
 				bn < MNINDIR(ump) && *runp < maxrun &&
 				is_sequential(ump, ((int32_t *)bp->b_data)[bn - 1],
 				((int32_t *)bp->b_data)[bn]);
@@ -271,5 +271,5 @@ ext2fs_bmaparray(struct vnode *vp,
 
 	daddr = blkptrtodb(ump, daddr);
 	*bnp = daddr == 0 ? -1 : daddr;
-*/	return (0);
+	return (0);
 }

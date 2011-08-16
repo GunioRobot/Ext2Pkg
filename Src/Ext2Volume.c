@@ -108,6 +108,7 @@ int bread (struct vnode *devvp, INTN Sblock, INTN SbSize, INTN a, INTN b, OUT bu
 void brelse (IN buf_t *Buffer, INTN a)
 {
   FreePool (Buffer->b_data);
+  FreePool (Buffer);
 }
 
 int
@@ -118,4 +119,47 @@ breadn(struct vnode *vp, daddr_t blkno, INTN size, daddr_t rablks[],
          buf_t **bpp)
 {
     return bread(vp, blkno, size, a, 0, bpp);
+}
+
+void
+#define struct
+VOP_STRATEGY(struct vnode *vp,
+#undef struct
+	 struct buf *bp)
+ {
+
+    EXT2_DEV *Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(vp->Filesystem);
+    EFI_DISK_IO_PROTOCOL *DiskIo = Private->DiskIo;
+    EFI_BLOCK_IO_PROTOCOL *BlockIo = Private->BlockIo;
+    UINT32 MediaId = BlockIo->Media->MediaId;
+    
+    VOID *data = AllocateZeroPool(Private->fs->e2fs_bsize);
+    
+    EFI_STATUS Status;
+
+    if (bp->b_flags & B_READ) {
+	Status = DiskIo->ReadDisk (DiskIo, MediaId, bp->b_blkno*512, Private->fs->e2fs_bsize, data);
+	if (EFI_ERROR (Status)) {
+	    DEBUG ((EFI_D_INFO, "ReadDisk failed VOP_STRATEGY\n"));
+	    bp->b_resid = -1;
+	}
+	
+	bp->b_data = data;
+    }
+    bp->b_resid = 0;
+    DEBUG ((EFI_D_INFO, "ReadDisk success VOP_STRATEGY\n"));
+}
+
+struct buf* getblk (
+#define struct
+		struct vnode *vp, daddr_t metalbn, int crap, int a, int b)
+#undef struct
+{
+    struct buf *buf;
+
+    buf = AllocateZeroPool(sizeof(struct buf));
+
+    buf->b_oflags = 0;
+    
+    return buf;
 }

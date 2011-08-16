@@ -322,4 +322,15 @@ VOID Ext2DebugDirect (IN struct ext2fs_direct *dir);
 int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp);
 #undef struct
 
+struct buf* getblk (
+#define struct
+                struct vnode *vp, daddr_t metalbn, int crap, int a, int b);
+#undef struct
+
+void
+#define struct
+VOP_STRATEGY(struct vnode *vp,
+#undef struct
+         struct buf *bp);
+
 #endif

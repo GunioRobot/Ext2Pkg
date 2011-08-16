@@ -43,6 +43,7 @@
   ext2fs_inode.c
   ext2fs_readwrite.c
   ext2fs_bmap.c
+  skpc.c
 
 [Packages]
   MdePkg/MdePkg.dec

@@ -1,5 +1,6 @@
 #include "Ext2.h"
 #include "Ext2File.h"
+#include "ext2fs_dinode.h"
 
 EXT2_EFI_FILE_PRIVATE mExt2File = {
   EXT2_FILE_PRIVATE_DATA_SIGNATURE,
@@ -150,3 +151,97 @@ int ext2_ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
     
     return 0;
 }
+
+int ffs(int i)
+{
+    int count = 1;
+    if (i == 0) return 0;
+
+    while ((i & 1) != 1) {
+	i>>=1;
+	count++;
+    }
+    return count;
+}
+
+/*
+ * Create an array of logical block number/offset pairs which represent the
+ * path of indirect blocks required to access a data block.  The first "pair"
+ * contains the logical block number of the appropriate single, double or
+ * triple indirect block and the offset into the inode indirect block array.
+ * Note, the logical block number of the inode single/double/triple indirect
+ * block appears twice in the array, once with the offset into the i_ffs1_ib and
+ * once with the offset into the page itself.
+ */
+#define struct
+int
+ufs_getlbns(struct vnode *vp,
+#undef struct
+	 daddr_t bn, struct indir *ap, int *nump)
+{
+        daddr_t metalbn, realbn;
+        int64_t blockcnt;
+        int lbc;
+        int i, numlevels, off;
+        EXT2_DEV *mp = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(vp->Filesystem);
+	struct m_ext2fs *m_fs = mp->fs;
+        if (nump)
+                *nump = 0;
+        numlevels = 0;
+        realbn = bn;
+        if (bn < 0)
+                bn = -bn;
+
+        /*
+         * Determine the number of levels of indirection.  After this loop
+         * is done, blockcnt indicates the number of data blocks possible
+         * at the given level of indirection, and NIADDR - i is the number
+         * of levels of indirection needed to locate the requested block.
+         */
+
+        bn -= NDADDR;
+        for (lbc = 0, i = NIADDR;; i--, bn -= blockcnt) {
+                if (i == 0)
+                        return (EFBIG);
+
+                lbc += ffs(NINDIR(m_fs)) - 1;
+                blockcnt = (int64_t)1 << lbc;
+
+                if (bn < blockcnt)
+                        break;
+        }
+
+        /* Calculate the address of the first meta-block. */
+        metalbn = -((realbn >= 0 ? realbn : -realbn) - bn + NIADDR - i);
+
+        /*
+         * At each iteration, off is the offset into the bap array which is
+         * an array of disk addresses at the current level of indirection.
+         * The logical block number and the offset in that block are stored
+         * into the argument array.
+         */
+        ap->in_lbn = metalbn;
+        ap->in_off = off = NIADDR - i;
+        ap->in_exists = 0;
+        ap++;
+        for (++numlevels; i <= NIADDR; i++) {
+                /* If searching for a meta-data block, quit when found. */
+                if (metalbn == realbn)
+                        break;
+
+                lbc -= ffs(NINDIR(m_fs)) - 1;
+                off = (bn >> lbc) & (MNINDIR(ump) - 1);
+
+                ++numlevels;
+                ap->in_lbn = metalbn;
+                ap->in_off = off;
+                ap->in_exists = 0;
+                ++ap;
+
+                metalbn -= -1 + ((int64_t)off << lbc);
+        }
+        if (nump)
+                *nump = numlevels;
+        return (0);
+}
+

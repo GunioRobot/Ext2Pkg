@@ -260,4 +260,10 @@ ext2_ubc_uiomove(void *uobj, struct uio *uio, vsize_t todo,
 int uiomove(void *buf, size_t n, struct uio *uio);
 int ext2fs_read(void *v);
 int ext2fs_bmap(void *v);
+#define struct
+int
+ufs_getlbns(struct vnode *vp,
+#undef struct
+         daddr_t bn, struct indir *ap, int *nump);
+
 #endif

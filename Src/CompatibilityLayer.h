@@ -89,6 +89,20 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #define INT32_MAX 0x7fffffff
 
+#define mutex_enter(a)
+#define mutex_exit(a)
+#define incore(a,b) NULL
+#define trace(a,b,c)
+
+#define BO_DONE 1
+#define BO_DELWRI 1
+#define B_READ 1
+#define B_WRITE 2
+
+#define MNINDIR(a) NINDIR(a->fs)
+
+#define biowait(bp) bp->b_resid
+
 typedef _EFI_SIZE_T_ size_t;
 typedef UINT8 u_char;
 typedef UINT64 vsize_t;
@@ -114,6 +128,9 @@ typedef UINT64 ino_t;
 struct buf {
   VOID *b_data;
   int b_resid;
+  daddr_t b_blkno;
+  int b_flags;
+  int b_oflags;
 };
 
 typedef struct buf buf_t;

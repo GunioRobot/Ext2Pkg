@@ -29,6 +29,8 @@ Ext2OpenVolume (
  // char buffer[1024];
   //struct m_ext2fs *fs;
   int error;
+  int size = 100;
+  char *str = NULL;
   
   Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(This);
 
@@ -51,6 +53,31 @@ Ext2OpenVolume (
 
   error=ext2fs_vget(Private, 34820, &pfile);
   Ext2DebugDinode (pfile->File->i_din.e2fs_din);
+
+  struct vop_read_args v;
+  struct uio uio;
+  struct iovec uio_iov;
+  
+  uio_iov.iov_base = AllocateZeroPool (size);
+  
+  uio_iov.iov_len = size;
+  uio.uio_iov = &uio_iov;
+  uio.uio_iovcnt = 1;
+  uio.uio_offset = 0;
+  uio.uio_resid = size;
+  uio.uio_rw = UIO_READ;
+  
+  v.a_vp = pfile;
+  v.a_uio = &uio;
+  v.a_ioflag = 0;
+  error = ext2fs_read(&v);
+  str = uio_iov.iov_base;
+  DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
+  DEBUG ((EFI_D_INFO, "\n File content: \n"));
+  for (error = 0; error < size; error++){
+      DEBUG ((EFI_D_INFO, "%c",str[error]));
+  }
+  
 
   return EFI_SUCCESS;
 }
@@ -92,6 +119,7 @@ int bread (struct vnode *devvp, INTN Sblock, INTN SbSize, INTN a, INTN b, OUT bu
 	    return error;
 	}
     }
+
     (*Buffer)->b_data = AllocateCopyPool (SbSize, data);
     FreePool (data);
     

@@ -446,10 +446,8 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
 	    return (error);
         }
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
 	ip = pool_get(&ext2fs_inode_pool, PR_WAITOK);
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));      
         memset(ip, 0, sizeof(struct inode));
         vp->File = ip;
         ip->i_e2fs = fs = mp->fs;
@@ -457,15 +455,12 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         ip->i_e2fs_last_lblk = 0;
         ip->i_e2fs_last_blk = 0;
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
         /* Read in the disk contents for the inode, copy into the inode. */
         error = bread(vp, fsbtodb(fs, ino_to_fsba(fs, ino)),
             (int)fs->e2fs_bsize, NOCRED, 0, &bp);
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
         if (error) {
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
                 /*
                  * The inode does not contain anything useful, so it would
                  * be misleading to leave it on its hash chain. With mode
@@ -477,13 +472,12 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
                 brelse(bp, 0);
                 return (error);
         }
-        
+
         cp = (char *)bp->b_data + (ino_to_fsbo(fs, ino) * EXT2_DINODE_SIZE(fs));
         ip->i_din.e2fs_din = malloc (sizeof(struct ext2fs_dinode), 0 ,0);
         e2fs_iload((struct ext2fs_dinode *)cp, ip->i_din.e2fs_din);
         brelse(bp, 0);
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));        
         /* If the inode was deleted, reset all fields */
         if (ip->i_e2fs_dtime != 0) {
     	    ip->i_e2fs_mode = ip->i_e2fs_nblock = 0;
@@ -491,7 +485,6 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
     	    memset(ip->i_e2fs_blocks, 0, sizeof(ip->i_e2fs_blocks));
         }
 
-        DEBUG ((EFI_D_INFO,"plm vget getnewvnode\n"));
 	*vpp = vp;
         return (0);
 }

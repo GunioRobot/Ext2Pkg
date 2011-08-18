@@ -454,6 +454,7 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         ip->i_number = ino;
         ip->i_e2fs_last_lblk = 0;
         ip->i_e2fs_last_blk = 0;
+        ip->vp = &vp->EfiFile;
 
         /* Read in the disk contents for the inode, copy into the inode. */
         error = bread(vp, fsbtodb(fs, ino_to_fsba(fs, ino)),
@@ -481,7 +482,7 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         /* If the inode was deleted, reset all fields */
         if (ip->i_e2fs_dtime != 0) {
     	    ip->i_e2fs_mode = ip->i_e2fs_nblock = 0;
-    	//    (void)ext2fs_setsize(ip, 0);
+	    (void)ext2fs_setsize(ip, 0);
     	    memset(ip->i_e2fs_blocks, 0, sizeof(ip->i_e2fs_blocks));
         }
 

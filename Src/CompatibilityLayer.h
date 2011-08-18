@@ -25,6 +25,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define malloc(a,b,c) AllocateZeroPool(a)
 #define free(a,b) FreePool(a)
 #define strcpy(a,b,c,d) AsciiStrCpy(a,d)
+#define strncpy(a,b,c) AsciiStrnCpy(a,b,c)
 #define copystr(a,b,c,d) AsciiStrCpy((CHAR8 *)a,(CHAR8 *)b)
 #define LIST_ENTRY(a) LIST_ENTRY
 #define printf(a,...) DEBUG((EFI_D_INFO,(a),##__VA_ARGS__))
@@ -38,10 +39,19 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define mount EXT2_DEV
 #define vnode EXT2_EFI_FILE_PRIVATE
 #define VTOI(a) a->File
+#define ITOV(a) EXT2_EFI_FILE_PRIVATE_DATA_FROM_THIS(a->vp)
 #define vrele(a) FreePool(a)
 #define root_device 1
+#define v_mount Filesystem
 #define device_class(a) getnewvnode (0, mp, 1, NULL, &rootvp)
 #define DV_DISK 0
+#define M_TEMP 0
+#define M_WAITOK 0
+#define M_ZERO 0
+
+#define VFS_VGET(a,b,c) ext2fs_vget(EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(a), b, c)
+
+#define ROOTINO EXT2_ROOTINO
 
 #define ENONDEV -1
 #define MOUNT_EXT2FS 1
@@ -102,6 +112,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define MNINDIR(a) NINDIR(a->fs)
 
 #define biowait(bp) bp->b_resid
+
+#define UIO_SETUP_SYSSPACE(a)
+#define UIO_SYSSPACE 0
+#define IO_NODELOCKED 0
 
 typedef _EFI_SIZE_T_ size_t;
 typedef UINT8 u_char;

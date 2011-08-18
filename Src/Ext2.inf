@@ -44,6 +44,7 @@
   ext2fs_readwrite.c
   ext2fs_bmap.c
   skpc.c
+  ext2fs_lookup.c
 
 [Packages]
   MdePkg/MdePkg.dec

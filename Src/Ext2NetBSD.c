@@ -245,3 +245,55 @@ ufs_getlbns(struct vnode *vp,
         return (0);
 }
 
+int
+#define struct
+VOP_READ (struct vnode *vp,
+#undef struct
+	struct uio *uio, int ioflag, int b)
+{
+    int error;
+    struct vop_read_args a;
+    a.a_vp = vp;
+    a.a_uio = uio;
+    a.a_ioflag = ioflag;
+
+    error = ext2fs_read(&a);
+
+    return error;
+
+}
+
+int
+#define struct
+vn_rdwr(enum uio_rw rw, struct vnode *vp, void *base, int len, off_t offset,
+    int segflg, int ioflg, kauth_cred_t vcred, size_t *aresid,
+    void *l)
+#undef struct
+{
+        struct uio auio;
+        struct iovec aiov;
+        int error = 0;
+
+        auio.uio_iov = &aiov;
+        auio.uio_iovcnt = 1;
+        aiov.iov_base = base;
+        aiov.iov_len = len;
+        auio.uio_resid = len;
+        auio.uio_offset = offset;
+        auio.uio_rw = rw;
+
+        if (rw == UIO_READ) {
+                error = VOP_READ(vp, &auio, ioflg, cred);
+//        } else {
+//                error = VOP_WRITE(vp, &auio, ioflg, cred);
+        }
+
+        if (aresid)
+                *aresid = auio.uio_resid;
+        else
+                if (auio.uio_resid && error == 0)
+                        error = EIO;
+
+        return (error);
+}
+

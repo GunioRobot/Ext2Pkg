@@ -77,6 +77,7 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 #include "CompatibilityLayer.h"
+#include <Protocol/SimpleFileSystem.h>
 #endif
 
 /*
@@ -98,7 +99,8 @@ struct ext2fs_inode_ext {
  * active, and is put back when the file is no longer being used.
  */
 struct inode {
-	LIST_ENTRY(inode) i_hash;/* Hash chain. */
+//	LIST_ENTRY(inode) i_hash;/* Hash chain.
+	EFI_FILE_PROTOCOL *vp;
 	
 	u_int32_t i_flag;	/* flags, see below */
 	ino_t	  i_number;	/* The identity of the inode. */

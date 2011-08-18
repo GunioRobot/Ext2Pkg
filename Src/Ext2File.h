@@ -63,6 +63,15 @@ struct vop_bmap_args {
     int *a_runp;
 };
 
+struct vop_readdir_args {
+    EXT2_EFI_FILE_PRIVATE *a_vp;
+    struct uio *a_uio;
+    int *a_eofflag;
+    off_t **a_cookies;
+    int a_cred;
+    int *a_ncookies;
+};
+
 /**
   Open a file relative to the source file location.
 

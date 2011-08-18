@@ -333,4 +333,16 @@ VOP_STRATEGY(struct vnode *vp,
 #undef struct
          struct buf *bp);
 
+int
+#define struct
+VOP_READ(struct vnode *vp,
+#undef struct
+	struct uio *uio, int ioflag, int b);
+
+int
+#define struct
+vn_rdwr(enum uio_rw rw, struct vnode *vp, void *base, int len, off_t offset,
+    int segflg, int ioflg, kauth_cred_t vcred, size_t *aresid,
+    void *l);
+#undef struct
 #endif

@@ -238,6 +238,472 @@ ext2fs_readdir(void *v)
 	return (error);
 }
 
+/*
+ * Convert a component of a pathname into a pointer to a locked inode.
+ * This is a very central and rather complicated routine.
+ * If the file system is not maintained in a strict tree hierarchy,
+ * this can result in a deadlock situation (see comments in code below).
+ *
+ * The cnp->cn_nameiop argument is LOOKUP, CREATE, RENAME, or DELETE depending
+ * on whether the name is to be looked up, created, renamed, or deleted.
+ * When CREATE, RENAME, or DELETE is specified, information usable in
+ * creating, renaming, or deleting a directory entry may be calculated.
+ * If flag has LOCKPARENT or'ed into it and the target of the pathname
+ * exists, lookup returns both the target and its parent directory locked.
+ * When creating or renaming and LOCKPARENT is specified, the target may
+ * not be ".".  When deleting and LOCKPARENT is specified, the target may
+ * be "."., but the caller must check to ensure it does an vrele and vput
+ * instead of two vputs.
+ *
+ * Overall outline of ext2fs_lookup:
+ *
+ *      check accessibility of directory
+ *      look for name in cache, if found, then if at end of path
+ *        and deleting or creating, drop it, else return name
+ *      search for name in directory, to found or notfound
+ * notfound:
+ *      if creating, return locked directory, leaving info on available slots
+ *      else return error
+ * found:
+ *      if at end of path and deleting, return information to allow delete
+ *      if at end of path and rewriting (RENAME and LOCKPARENT), lock target
+ *        inode and return info to allow rewrite
+ *      if not at end, add name to cache; if at end and neither creating
+ *        nor deleting, add name to cache
+ */
+int
+ext2fs_lookup(void *v)
+{
+        struct vop_lookup_args /* {
+                struct vnode *a_dvp;
+                struct vnode **a_vpp;
+                struct componentname *a_cnp;
+        } */ *ap = v;
+#define struct
+        struct vnode *vdp = ap->a_dvp;  /* vnode for directory being searched */
+#undef struct
+        struct inode *dp = VTOI(vdp);   /* inode for directory being searched */
+        struct buf *bp;                 /* a buffer of directory entries */
+        struct ext2fs_direct *ep;       /* the current directory entry */
+        int entryoffsetinblock;         /* offset of ep in bp's buffer */
+        enum {NONE, COMPACT, FOUND} slotstatus;
+        doff_t slotoffset;              /* offset of area with free space */
+        int slotsize;                   /* size of area at slotoffset */
+        int slotfreespace;              /* amount of space free in slot */
+        int slotneeded;                 /* size of the entry we're seeking */
+        int numdirpasses;               /* strategy for directory search */
+        doff_t endsearch;               /* offset to end directory search */
+        doff_t prevoff;                 /* prev entry dp->i_offset */
+#define struct
+        struct vnode *pdp;              /* saved dp during symlink work */
+        struct vnode *tdp;              /* returned by VFS_VGET */
+#undef struct
+        doff_t enduseful;               /* pointer past last used dir slot */
+        u_long bmask;                   /* block offset mask */
+        int namlen, error;
+#define struct
+        struct vnode **vpp = ap->a_vpp;
+#undef struct
+        struct componentname *cnp = ap->a_cnp;
+//        kauth_cred_t cred = cnp->cn_cred;
+        int flags;
+        int nameiop = cnp->cn_nameiop;
+//        struct ufsmount *ump = dp->i_ump;
+//        int dirblksiz = ump->um_dirblksiz;
+	int dirblksiz = (EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(vdp->Filesystem))->fs->e2fs_bsize;
+        ino_t foundino;
+
+        flags = cnp->cn_flags;
+
+        bp = NULL;
+        slotoffset = -1;
+        *vpp = NULL;
+
+        /*
+         * Check accessiblity of directory.
+         */
+        if ((error = VOP_ACCESS(vdp, VEXEC, cred)) != 0)
+                return (error);
+
+//        if ((flags & ISLASTCN) && (vdp->v_mount->mnt_flag & MNT_RDONLY) &&
+//            (cnp->cn_nameiop == DELETE || cnp->cn_nameiop == RENAME))
+//                return (EROFS);
+
+        /*
+         * We now have a segment name to search for, and a directory to search.
+         *
+         * Before tediously performing a linear scan of the directory,
+         * check the name cache to see if the directory/name pair
+         * we are looking for is known already.
+         */
+        if ((error = cache_lookup(vdp, vpp, cnp)) >= 0)
+                return (error);
+
+        /*
+         * Suppress search for slots unless creating
+         * file and at end of pathname, in which case
+         * we watch for a place to put the new file in
+         * case it doesn't already exist.
+         */
+        slotstatus = FOUND;
+        slotfreespace = slotsize = slotneeded = 0;
+/*        if ((nameiop == CREATE || nameiop == RENAME) &&
+            (flags & ISLASTCN)) {
+                slotstatus = NONE;
+                slotneeded = EXT2FS_DIRSIZ(cnp->cn_namelen);
+        }
+*/
+        /*
+         * If there is cached information on a previous search of
+         * this directory, pick up where we last left off.
+         * We cache only lookups as these are the most common
+         * and have the greatest payoff. Caching CREATE has little
+         * benefit as it usually must search the entire directory
+         * to determine that the entry does not exist. Caching the
+         * location of the last DELETE or RENAME has not reduced
+         * profiling time and hence has been removed in the interest
+         * of simplicity.
+         */
+        // !!!!!!!!!!!!!!!!!!!!!!! needs fix !!!!!!!!!!!!!!!!!
+        bmask = 1023;
+        if (nameiop != LOOKUP || dp->i_diroff == 0 ||
+            dp->i_diroff >= ext2fs_size(dp)) {
+                entryoffsetinblock = 0;
+                dp->i_offset = 0;
+                numdirpasses = 1;
+        } else {
+                dp->i_offset = dp->i_diroff;
+                if ((entryoffsetinblock = dp->i_offset & bmask) &&
+                    (error = ext2fs_blkatoff(vdp, (off_t)dp->i_offset, NULL, &bp)))
+                        return (error);
+                numdirpasses = 2;
+//                nchstats.ncs_2passes++;
+        }
+        prevoff = dp->i_offset;
+        endsearch = roundup(ext2fs_size(dp), dirblksiz);
+        enduseful = 0;
+
+searchloop:
+        while (dp->i_offset < endsearch) {
+//                if (curcpu()->ci_schedstate.spc_flags & SPCF_SHOULDYIELD)
+//                        preempt();
+                /*
+                 * If necessary, get the next directory block.
+                 */
+                if ((dp->i_offset & bmask) == 0) {
+                        if (bp != NULL)
+                                brelse(bp, 0);
+                        error = ext2fs_blkatoff(vdp, (off_t)dp->i_offset, NULL,
+                            &bp);
+                        if (error != 0)
+                                return (error);
+                        entryoffsetinblock = 0;
+                }
+                /*
+                 * If still looking for a slot, and at a dirblksize
+                 * boundary, have to start looking for free space again.
+                 */
+                if (slotstatus == NONE &&
+                    (entryoffsetinblock & (dirblksiz - 1)) == 0) {
+                        slotoffset = -1;
+                        slotfreespace = 0;
+                }
+                /*
+                 * Get pointer to next entry.
+                 * Full validation checks are slow, so we only check
+                 * enough to insure forward progress through the
+                 * directory. Complete checks can be run by patching
+                 * "dirchk" to be true.
+                 */
+//                KASSERT(bp != NULL);
+                ep = (struct ext2fs_direct *)
+                        ((char *)bp->b_data + entryoffsetinblock);
+/*                if (ep->e2d_reclen == 0 ||
+                    (dirchk &&
+                     ext2fs_dirbadentry(vdp, ep, entryoffsetinblock))) {
+                        int i;
+
+                        ufs_dirbad(dp, dp->i_offset, "mangled entry");
+                        i = dirblksiz - (entryoffsetinblock & (dirblksiz - 1));
+                        dp->i_offset += i;
+                        entryoffsetinblock += i;
+                        continue;
+                }
+*/
+                /*
+                 * If an appropriate sized slot has not yet been found,
+                 * check to see if one is available. Also accumulate space
+                 * in the current block so that we can determine if
+                 * compaction is viable.
+                 */
+                if (slotstatus != FOUND) {
+                        int size = fs2h16(ep->e2d_reclen);
+
+                        if (ep->e2d_ino != 0)
+                                size -= EXT2FS_DIRSIZ(ep->e2d_namlen);
+                        if (size > 0) {
+                                if (size >= slotneeded) {
+                                      slotstatus = FOUND;
+                                        slotoffset = dp->i_offset;
+                                        slotsize = fs2h16(ep->e2d_reclen);
+                                } else if (slotstatus == NONE) {
+                                        slotfreespace += size;
+                                        if (slotoffset == -1)
+                                                slotoffset = dp->i_offset;
+                                        if (slotfreespace >= slotneeded) {
+                                                slotstatus = COMPACT;
+                                                slotsize = dp->i_offset +
+                                                    fs2h16(ep->e2d_reclen) -
+                                                    slotoffset;
+                                        }
+                                }
+                        }
+                }
+
+                /*
+                 * Check for a name match.
+                 */
+                if (ep->e2d_ino) {
+                        namlen = ep->e2d_namlen;
+                        if (namlen == cnp->cn_namelen &&
+                            !memcmp(cnp->cn_nameptr, ep->e2d_name,
+                            (unsigned)namlen)) {
+                                /*
+                                 * Save directory entry's inode number and
+                                 * reclen in ndp->ni_ufs area, and release
+                                 * directory buffer.
+                                 */
+                                foundino = fs2h32(ep->e2d_ino);
+                                dp->i_reclen = fs2h16(ep->e2d_reclen);
+                                goto found;
+                        }
+                }
+                prevoff = dp->i_offset;
+                dp->i_offset += fs2h16(ep->e2d_reclen);
+                entryoffsetinblock += fs2h16(ep->e2d_reclen);
+                if (ep->e2d_ino)
+                        enduseful = dp->i_offset;
+        }
+/* notfound: */
+        /*
+         * If we started in the middle of the directory and failed
+         * to find our target, we must check the beginning as well.
+         */
+        if (numdirpasses == 2) {
+                numdirpasses--;
+                dp->i_offset = 0;
+                endsearch = dp->i_diroff;
+                goto searchloop;
+        }
+        if (bp != NULL)
+                brelse(bp, 0);
+        /*
+         * If creating, and at end of pathname and current
+         * directory has not been removed, then can consider
+         * allowing file to be created.
+       */
+/*        if ((nameiop == CREATE || nameiop == RENAME) &&
+            (flags & ISLASTCN) && dp->i_e2fs_nlink != 0) {
+*/                /*
+                 * Access for write is interpreted as allowing
+                 * creation of files in the directory.
+                 */
+/*                error = VOP_ACCESS(vdp, VWRITE, cred);
+                if (error)
+                        return (error);
+*/                /*
+                 * Return an indication of where the new directory
+                 * entry should be put.  If we didn't find a slot,
+                 * then set dp->i_count to 0 indicating
+                 * that the new slot belongs at the end of the
+                 * directory. If we found a slot, then the new entry
+                 * can be put in the range from dp->i_offset to
+                 * dp->i_offset + dp->i_count.
+                 */
+/*                if (slotstatus == NONE) {
+                        dp->i_offset = roundup(ext2fs_size(dp), dirblksiz);
+                        dp->i_count = 0;
+                        enduseful = dp->i_offset;
+                } else {
+                        dp->i_offset = slotoffset;
+                        dp->i_count = slotsize;
+                        if (enduseful < slotoffset + slotsize)
+                                enduseful = slotoffset + slotsize;
+                }
+                dp->i_endoff = roundup(enduseful, dirblksiz);
+#if 0
+                dp->i_flag |= IN_CHANGE | IN_UPDATE;
+#endif
+*/                /*
+                 * We return with the directory locked, so that
+                 * the parameters we set up above will still be
+                 * valid if we actually decide to do a direnter().
+                 * We return ni_vp == NULL to indicate that the entry
+                 * does not currently exist; we leave a pointer to
+                 * the (locked) directory inode in ndp->ni_dvp.
+                 *
+                 * NB - if the directory is unlocked, then this
+                 * information cannot be used.
+                 */
+//                return (EJUSTRETURN);
+//        }
+        /*
+         * Insert name into cache (as non-existent) if appropriate.
+         */
+//        if ((cnp->cn_flags & MAKEENTRY) && nameiop != CREATE)
+//                cache_enter(vdp, *vpp, cnp);
+        return (ENOENT);
+
+found:
+//        if (numdirpasses == 2)
+//                nchstats.ncs_pass2++;
+        /*
+         * Check that directory length properly reflects presence
+         * of this entry.
+         */
+/*        if (dp->i_offset + EXT2FS_DIRSIZ(ep->e2d_namlen) > ext2fs_size(dp)) {
+                ufs_dirbad(dp, dp->i_offset, "i_size too small");
+                error = ext2fs_setsize(dp,
+                                dp->i_offset + EXT2FS_DIRSIZ(ep->e2d_namlen));
+                if (error) {
+                        brelse(bp, 0);
+                        return (error);
+                }
+                dp->i_flag |= IN_CHANGE | IN_UPDATE;
+                uvm_vnp_setsize(vdp, ext2fs_size(dp));
+        }
+        brelse(bp, 0);
+*/
+        /*
+         * Found component in pathname.
+         * If the final component of path name, save information
+         * in the cache as to where the entry was found.
+         */
+        if ((flags & ISLASTCN) && nameiop == LOOKUP)
+                dp->i_diroff = dp->i_offset &~ (dirblksiz - 1);
+
+        /*
+         * If deleting, and at end of pathname, return
+         * parameters which can be used to remove file.
+         * Lock the inode, being careful with ".".
+         */
+//        if (nameiop == DELETE && (flags & ISLASTCN)) {
+                /*
+                 * Write access to directory required to delete files.
+                 */
+//                if ((error = VOP_ACCESS(vdp, VWRITE, cred)) != 0)
+//                        return (error);
+                /*
+                 * Return pointer to current entry in dp->i_offset,
+                 * and distance past previous entry (if there
+                 * is a previous entry in this block) in dp->i_count.
+                 * Save directory inode pointer in ndp->ni_dvp for dirremove().
+                 */
+/*                if ((dp->i_offset & (dirblksiz - 1)) == 0)
+                        dp->i_count = 0;
+                else
+                        dp->i_count = dp->i_offset - prevoff;
+                if (dp->i_number == foundino) {
+                        vref(vdp);
+                        *vpp = vdp;
+                        return (0);
+                }
+                if (flags & ISDOTDOT)
+                        VOP_UNLOCK(vdp);*/ /* race to get the inode */
+/*                error = VFS_VGET(vdp->v_mount, foundino, &tdp);
+                if (flags & ISDOTDOT)
+                        vn_lock(vdp, LK_EXCLUSIVE | LK_RETRY);
+                if (error)
+                        return (error);
+*/                /*
+                 * If directory is "sticky", then user must own
+                 * the directory, or the file in it, else she
+                 * may not delete it (unless she's root). This
+                 * implements append-only directories.
+                 */
+/*                if ((dp->i_e2fs_mode & ISVTX) &&
+                    kauth_authorize_generic(cred, KAUTH_GENERIC_ISSUSER, NULL) &&
+                    kauth_cred_geteuid(cred) != dp->i_uid &&
+                    VTOI(tdp)->i_uid != kauth_cred_geteuid(cred)) {
+                       vput(tdp);
+                        return (EPERM);
+                }
+                *vpp = tdp;
+                return (0);
+        }
+*/
+        /*
+         * If rewriting (RENAME), return the inode and the
+         * information required to rewrite the present directory
+         * Must get inode of directory entry to verify it's a
+         * regular file, or empty directory.
+         */
+/*        if (nameiop == RENAME && (flags & ISLASTCN)) {
+                error = VOP_ACCESS(vdp, VWRITE, cred);
+                if (error)
+                        return (error);
+*/                /*
+                 * Careful about locking second inode.
+                 * This can only occur if the target is ".".
+                 */
+/*                if (dp->i_number == foundino)
+                        return (EISDIR);
+                if (flags & ISDOTDOT)
+                        VOP_UNLOCK(vdp); *//* race to get the inode */
+/*                error = VFS_VGET(vdp->v_mount, foundino, &tdp);
+                if (flags & ISDOTDOT)
+                        vn_lock(vdp, LK_EXCLUSIVE | LK_RETRY);
+                if (error)
+                        return (error);
+                *vpp = tdp;
+                return (0);
+        }
+*/
+        /*
+         * Step through the translation in the name.  We do not `vput' the
+         * directory because we may need it again if a symbolic link
+         * is relative to the current directory.  Instead we save it
+         * unlocked as "pdp".  We must get the target inode before unlocking
+         * the directory to insure that the inode will not be removed
+         * before we get it.  We prevent deadlock by always fetching
+         * inodes from the root, moving down the directory tree. Thus
+         * when following backward pointers ".." we must unlock the
+         * parent directory before getting the requested directory.
+         * There is a potential race condition here if both the current
+         * and parent directories are removed before the VFS_VGET for the
+         * inode associated with ".." returns.  We hope that this occurs
+         * infrequently since we cannot avoid this race condition without
+         * implementing a sophisticated deadlock detection algorithm.
+         * Note also that this simple deadlock detection scheme will not
+         * work if the file system has any hard links other than ".."
+         * that point backwards in the directory structure.
+         */
+        pdp = vdp;
+        if (flags & ISDOTDOT) {
+//                VOP_UNLOCK(pdp);        /* race to get the inode */
+                error = VFS_VGET(vdp->v_mount, foundino, &tdp);
+//                vn_lock(pdp, LK_EXCLUSIVE | LK_RETRY);
+                if (error) {
+                        return (error);
+                }
+                *vpp = tdp;
+        } else if (dp->i_number == foundino) {
+        //        vref(vdp);      /* we want ourself, ie "." */
+                *vpp = vdp;
+        } else {
+                error = VFS_VGET(vdp->v_mount, foundino, &tdp);
+                if (error)
+                        return (error);
+                *vpp = tdp;
+        }
+
+        /*
+         * Insert name into cache if appropriate.
+         */
+//        if (cnp->cn_flags & MAKEENTRY)
+//                cache_enter(vdp, *vpp, cnp);
+        return (0);
+}
 
 /*
  * Check if source directory is in the path of the target directory.

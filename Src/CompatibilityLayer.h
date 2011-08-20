@@ -61,6 +61,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define vfs_destroy(a)
 
 #define pool_get(a,b) malloc (sizeof (struct inode), 0, 0)
+#define roundup(x, y) ((((x)+((y)-1))/(y))*(y))
 #define	roundup2(x, m)	(((x) + (m) - 1) & ~((m) - 1))
 #define	howmany(x, y)	(((x)+((y)-1))/(y))
 
@@ -117,6 +118,32 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define UIO_SYSSPACE 0
 #define IO_NODELOCKED 0
 
+#define VEXEC 0
+#define VOP_ACCESS(a,b,c) 0
+#define cache_lookup(a,b,c) 0
+
+/*
+ * namei operations
+ */
+#define LOOKUP          0       /* perform name lookup only */
+#define CREATE          1       /* setup for file creation */
+#define DELETE          2       /* setup for file deletion */
+#define RENAME          3       /* setup for file renaming */
+#define OPMASK          3       /* mask for operation */
+
+#define NOCROSSMOUNT    0x0000100       /* do not cross mount points */
+#define RDONLY          0x0000200       /* lookup with read-only semantics */
+#define ISDOTDOT        0x0002000       /* current component name is .. */
+#define MAKEENTRY       0x0004000       /* entry is to be added to name cache */
+#define ISLASTCN        0x0008000       /* this is last component of pathname */
+#define ISWHITEOUT      0x0020000       /* found whiteout */
+#define DOWHITEOUT      0x0040000       /* do whiteouts */
+#define REQUIREDIR      0x0080000       /* must be a directory */
+#define CREATEDIR       0x0200000       /* trailing slashes are ok */
+#define INRENAME        0x0400000       /* operation is a part of ``rename'' */
+#define INRELOOKUP      0x0800000       /* set while inside relookup() */
+#define PARAMASK        0x0eee300       /* mask of parameter descriptors */
+
 typedef _EFI_SIZE_T_ size_t;
 typedef UINT8 u_char;
 typedef UINT64 vsize_t;
@@ -133,11 +160,14 @@ typedef UINT64 uint64_t;
 typedef UINT64 u_int64_t;
 typedef INT64 quad_t;
 typedef UINT64 u_quad_t;
+typedef ULONGN u_long;
 
 typedef INT64 off_t;
 typedef INT32 doff_t; //weird
 typedef INT64 daddr_t;
 typedef UINT64 ino_t;
+
+#define memcmp(buf1,buf2,count)           (int)(CompareMem(buf1,buf2,(UINTN)(count)))
 
 struct buf {
   VOID *b_data;

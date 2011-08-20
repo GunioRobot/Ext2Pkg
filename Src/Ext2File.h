@@ -72,6 +72,31 @@ struct vop_readdir_args {
     int *a_ncookies;
 };
 
+struct componentname {
+     /*
+      * Arguments to lookup.
+      */
+     uint32_t cn_nameiop;    /* namei operation */
+     uint32_t cn_flags;      /* flags to namei */
+//     kauth_cred_t cn_cred;   /* credentials */
+     /*
+      * Shared between lookup and commit routines.
+      */
+     char    *cn_pnbuf;      /* pathname buffer */
+     const char *cn_nameptr; /* pointer to looked up name */
+     size_t  cn_namelen;     /* length of looked up component */
+     u_long  cn_hash;        /* hash value of looked up name */
+     size_t  cn_consume;     /* chars to consume in lookup() */
+};
+
+struct vop_lookup_args {
+#define struct
+    struct vnode *a_dvp;
+    struct vnode **a_vpp;
+#undef struct
+    struct componentname *a_cnp;
+};
+
 /**
   Open a file relative to the source file location.
 
@@ -276,3 +301,9 @@ ufs_getlbns(struct vnode *vp,
          daddr_t bn, struct indir *ap, int *nump);
 
 #endif
+
+#define struct
+int
+ext2fs_blkatoff(struct vnode *vp, off_t offset, char **res,
+#undef struct
+                 struct buf **bpp);

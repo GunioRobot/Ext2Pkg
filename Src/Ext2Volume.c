@@ -74,11 +74,35 @@ Ext2OpenVolume (
   str = uio_iov.iov_base;
   DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
   DEBUG ((EFI_D_INFO, "\n File content: \n"));
-  for (error = 0; error < size; error++){
-      DEBUG ((EFI_D_INFO, "%c",str[error]));
-  }
-  
+  Ext2DebugCharBuffer(uio_iov.iov_base, 100);
 
+  FreePool (uio_iov.iov_base);
+
+  struct vop_readdir_args ap;
+  int a_eofflag;
+  off_t *a_cookies;
+  ap.a_vp = PrivateFile;
+  void *c;
+
+  uio_iov.iov_base = AllocateZeroPool (2048);
+  c = uio_iov.iov_base;
+  uio_iov.iov_len = 2048;
+  uio.uio_iov = &uio_iov;
+  uio.uio_offset = 0;
+  uio.uio_resid = 2048;
+  uio.uio_rw = UIO_READ;
+  ap.a_uio = &uio;
+  ap.a_eofflag = &a_eofflag;
+  ap.a_cookies = &a_cookies;
+  ap.a_cred = 0;
+
+  error = ext2fs_readdir(&ap);
+  str = uio_iov.iov_base;
+  DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
+  DEBUG ((EFI_D_INFO, "\n File content: \n"));
+  Ext2DebugCharBuffer(uio_iov.iov_base, 2048);
+  Ext2DebugCharBuffer(c, 2048);
+ 
   return EFI_SUCCESS;
 }
 
@@ -97,6 +121,8 @@ int bread (struct vnode *devvp, INTN Sblock, INTN SbSize, INTN a, INTN b, OUT bu
     *Buffer = AllocateZeroPool (sizeof (struct buf));
     data = AllocateZeroPool (SbSize);
     
+    DEBUG ((EFI_D_INFO, "bread cred = %d\n", a));
+    
     if (a == 0) {
     	Status = DiskIo->ReadDisk (DiskIo, MediaId, Sblock*512, SbSize, data);
     } else {
@@ -111,6 +137,8 @@ int bread (struct vnode *devvp, INTN Sblock, INTN SbSize, INTN a, INTN b, OUT bu
 	v.a_runp = NULL;
 	
 	error = ext2fs_bmap(&v);
+	
+	DEBUG((EFI_D_INFO, "bread a_bnp %d\n", a_bnp));
 	
 	if (!error){
 	    Status = DiskIo->ReadDisk (DiskIo, MediaId, a_bnp*512, SbSize, data);

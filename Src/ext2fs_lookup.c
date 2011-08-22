@@ -175,7 +175,7 @@ ext2fs_readdir(void *v)
 	e2fs_count -= (uio->uio_offset + e2fs_count) & (fs->e2fs_bsize -1);
 	if (e2fs_count <= 0)
 		return (EINVAL);
-
+	
 	auio = *uio;
 	auio.uio_iov = &aiov;
 	auio.uio_iovcnt = 1;
@@ -194,8 +194,10 @@ ext2fs_readdir(void *v)
 	aiov.iov_base = dirbuf;
 
 	error = VOP_READ(ap->a_vp, &auio, 0, ap->a_cred);
+	
 	if (error == 0) {
 		readcnt = e2fs_count - auio.uio_resid;
+		
 		for (dp = (struct ext2fs_direct *)dirbuf;
 			(char *)dp < (char *)dirbuf + readcnt; ) {
 			e2d_reclen = fs2h16(dp->e2d_reclen);
@@ -207,11 +209,13 @@ ext2fs_readdir(void *v)
 			if(dstd->d_reclen > uio->uio_resid) {
 				break;
 			}
+
 			error = uiomove(dstd, dstd->d_reclen, uio);
 			if (error != 0) {
 				break;
 			}
 			off = off + e2d_reclen;
+			
 			if (cookies != NULL) {
 				*cookies++ = off;
 				if (--ncookies <= 0){
@@ -235,6 +239,7 @@ ext2fs_readdir(void *v)
 		} else
 			*ap->a_ncookies = nc - ncookies;
 	}
+	
 	return (error);
 }
 

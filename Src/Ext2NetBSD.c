@@ -46,6 +46,8 @@ int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp)
     DEBUG ((EFI_D_INFO, "getnewnode: c==2\n"));
     mp->Root = vp;
     vp->v_type = VDIR;
+    *vpp = vp;
+    return 0;
   }
   
   vp->v_type = VREG;

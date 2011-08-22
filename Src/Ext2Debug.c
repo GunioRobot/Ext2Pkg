@@ -78,9 +78,6 @@ VOID Ext2DebugDinode (struct ext2fs_dinode *d) {
 
 VOID Ext2DebugDirect (struct ext2fs_direct *dir) {
 
-  char plm[10] = "alin";
-
-  DEBUG ((EFI_D_INFO, "plm test %s ha",plm));
   DEBUG ((EFI_D_INFO, "\n============Ext2 direct===================\n"));
   DEBUG ((EFI_D_INFO, "e2d_ino              : %d\n", dir->e2d_ino));
   DEBUG ((EFI_D_INFO, "e2d_reclen           : %d\n", dir->e2d_reclen));
@@ -88,4 +85,15 @@ VOID Ext2DebugDirect (struct ext2fs_direct *dir) {
   DEBUG ((EFI_D_INFO, "e2d_type             : %d\n", dir->e2d_type));
   DEBUG ((EFI_D_INFO, "e2d_name             : %s\n", dir->e2d_name));
 
+}
+
+VOID Ext2DebugCharBuffer (VOID *buf, INTN size) {
+
+  char *str = NULL;
+  int i;
+
+  str = buf;
+  for (i = 0; i < size; i++) {
+    DEBUG ((EFI_D_INFO, "%c", str[i]));
+  }
 }

@@ -318,6 +318,8 @@ VOID Ext2DebugDinode (IN struct ext2fs_dinode *d);
 
 VOID Ext2DebugDirect (IN struct ext2fs_direct *dir);
 
+VOID Ext2DebugCharBuffer (VOID *buf, INTN size);
+
 #define struct
 int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp);
 #undef struct

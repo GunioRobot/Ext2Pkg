@@ -102,10 +102,10 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
+#define _BMAP_BREAD_
 #include "Ext2File.h"
 #include "Ext2.h"
 #include "ext2fs.h"
-#define _BMAP_BREAD_ 1
 #endif
 
 /*
@@ -186,11 +186,11 @@ ext2fs_read(void *v)
 		size = fs->e2fs_bsize;
 		blkoffset = blkoff(fs, uio->uio_offset);
 		xfersize = fs->e2fs_bsize - blkoffset;
+		
 		if (uio->uio_resid < xfersize)
 			xfersize = uio->uio_resid;
 		if (bytesinfile < xfersize)
 			xfersize = bytesinfile;
-
 		if (lblktosize(fs, nextlbn) >= ext2fs_size(ip))
 			error = bread(vp, lbn, size, NOCRED, 0, &bp);
 		else {
@@ -214,6 +214,7 @@ ext2fs_read(void *v)
 				break;
 			xfersize = size;
 		}
+		
 		error = uiomove((char *)bp->b_data + blkoffset, xfersize, uio);
 		if (error)
 			break;

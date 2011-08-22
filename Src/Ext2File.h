@@ -300,10 +300,12 @@ ufs_getlbns(struct vnode *vp,
 #undef struct
          daddr_t bn, struct indir *ap, int *nump);
 
-#endif
-
 #define struct
 int
 ext2fs_blkatoff(struct vnode *vp, off_t offset, char **res,
 #undef struct
                  struct buf **bpp);
+
+int
+ext2fs_readdir(void *v);
+#endif

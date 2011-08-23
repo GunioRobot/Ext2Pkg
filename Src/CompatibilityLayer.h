@@ -115,6 +115,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define biowait(bp) bp->b_resid
 
 #define UIO_SETUP_SYSSPACE(a) while(0){}
+#define ufs_dirbad(a,b,c) DEBUG((EFI_D_INFO, c))
+#define uvm_vnp_setsize(a,b) while(0){}
 #define UIO_SYSSPACE 0
 #define IO_NODELOCKED 0
 

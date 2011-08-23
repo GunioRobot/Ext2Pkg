@@ -80,17 +80,17 @@ __KERNEL_RCSID(0, "$NetBSD: ext2fs_lookup.c,v 1.63 2010/11/30 10:43:06 dholland 
 #include "ext2fs_dinode.h"
 #endif
 
-extern	int dirchk;
+int dirchk = 1;
 
 static void	ext2fs_dirconv2ffs(struct ext2fs_direct *e2dir,
 					  struct dirent *ffsdir);
-/*
+
 #define struct
 static int	ext2fs_dirbadentry(struct vnode *dp,
 #undef struct
 					  struct ext2fs_direct *de,
 					  int entryoffsetinblock);
-*/
+
 /*
  * the problem that is tackled below is the fact that FFS
  * includes the terminating zero on disk while EXT2FS doesn't
@@ -423,7 +423,7 @@ searchloop:
 //                KASSERT(bp != NULL);
                 ep = (struct ext2fs_direct *)
                         ((char *)bp->b_data + entryoffsetinblock);
-/*                if (ep->e2d_reclen == 0 ||
+                if (ep->e2d_reclen == 0 ||
                     (dirchk &&
                      ext2fs_dirbadentry(vdp, ep, entryoffsetinblock))) {
                         int i;
@@ -434,7 +434,7 @@ searchloop:
                         entryoffsetinblock += i;
                         continue;
                 }
-*/
+
                 /*
                  * If an appropriate sized slot has not yet been found,
                  * check to see if one is available. Also accumulate space
@@ -566,7 +566,7 @@ found:
          * Check that directory length properly reflects presence
          * of this entry.
          */
-/*        if (dp->i_offset + EXT2FS_DIRSIZ(ep->e2d_namlen) > ext2fs_size(dp)) {
+        if (dp->i_offset + EXT2FS_DIRSIZ(ep->e2d_namlen) > ext2fs_size(dp)) {
                 ufs_dirbad(dp, dp->i_offset, "i_size too small");
                 error = ext2fs_setsize(dp,
                                 dp->i_offset + EXT2FS_DIRSIZ(ep->e2d_namlen));
@@ -578,7 +578,7 @@ found:
                 uvm_vnp_setsize(vdp, ext2fs_size(dp));
         }
         brelse(bp, 0);
-*/
+
         /*
          * Found component in pathname.
          * If the final component of path name, save information
@@ -709,6 +709,59 @@ found:
 //                cache_enter(vdp, *vpp, cnp);
         return (0);
 }
+
+/*
+ * Do consistency checking on a directory entry:
+ *      record length must be multiple of 4
+ *      entry must fit in rest of its dirblksize block
+ *      record must be large enough to contain entry
+ *      name is not longer than EXT2FS_MAXNAMLEN
+ *      name must be as long as advertised, and null terminated
+ */
+/*
+ *      changed so that it confirms to ext2fs_check_dir_entry
+ */
+static int
+#define struct
+ext2fs_dirbadentry(struct vnode *dp,
+#undef struct 
+		struct ext2fs_direct *de,
+                int entryoffsetinblock)
+{
+//        struct ufsmount *ump = VFSTOUFS(dp->v_mount);
+//        int dirblksiz = ump->um_dirblksiz;
+	int dirblksiz = (EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(dp->Filesystem))->fs->e2fs_bsize; 
+
+        const char *error_msg = NULL;
+        int reclen = fs2h16(de->e2d_reclen);
+        int namlen = de->e2d_namlen;
+
+        if (reclen < EXT2FS_DIRSIZ(1)) /* e2d_namlen = 1 */
+		error_msg = "rec_len is smaller than minimal";
+        else if (reclen % 4 != 0)
+       		error_msg = "rec_len % 4 != 0";
+        else if (namlen > EXT2FS_MAXNAMLEN)
+                error_msg = "namlen > EXT2FS_MAXNAMLEN";
+        else if (reclen < EXT2FS_DIRSIZ(namlen))
+                error_msg = "reclen is too small for name_len";
+        else if (entryoffsetinblock + reclen > dirblksiz)
+                error_msg = "directory entry across blocks";
+        else if (fs2h32(de->e2d_ino) >
+                VTOI(dp)->i_e2fs->e2fs.e2fs_icount)
+	        error_msg = "inode out of bounds";
+
+        if (error_msg != NULL) {
+                printf( "bad directory entry: %s\n"
+        	       "offset=%d, inode=%lu, rec_len=%d, name_len=%d \n",
+                        error_msg, entryoffsetinblock,
+                        (unsigned long) fs2h32(de->e2d_ino),
+                        reclen, namlen);
+                panic("ext2fs_dirbadentry");
+        }
+
+        return error_msg == NULL ? 0 : 1;
+}
+
 
 /*
  * Check if source directory is in the path of the target directory.

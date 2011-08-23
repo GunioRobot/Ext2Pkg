@@ -30,7 +30,6 @@ Ext2OpenVolume (
   //struct m_ext2fs *fs;
   int error;
   int size = 100;
-  char *str = NULL;
   
   Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(This);
 
@@ -71,7 +70,6 @@ Ext2OpenVolume (
   v.a_uio = &uio;
   v.a_ioflag = 0;
   error = ext2fs_read(&v);
-  str = uio_iov.iov_base;
   DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
   DEBUG ((EFI_D_INFO, "\n File content: \n"));
   Ext2DebugCharBuffer(uio_iov.iov_base, 100);
@@ -86,10 +84,10 @@ Ext2OpenVolume (
 
   uio_iov.iov_base = AllocateZeroPool (2048);
   c = uio_iov.iov_base;
-  uio_iov.iov_len = 2048;
+  uio_iov.iov_len = 1024;
   uio.uio_iov = &uio_iov;
   uio.uio_offset = 0;
-  uio.uio_resid = 2048;
+  uio.uio_resid = 1024;
   uio.uio_rw = UIO_READ;
   ap.a_uio = &uio;
   ap.a_eofflag = &a_eofflag;
@@ -97,11 +95,9 @@ Ext2OpenVolume (
   ap.a_cred = 0;
 
   error = ext2fs_readdir(&ap);
-  str = uio_iov.iov_base;
   DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
   DEBUG ((EFI_D_INFO, "\n File content: \n"));
-  Ext2DebugCharBuffer(uio_iov.iov_base, 2048);
-  Ext2DebugCharBuffer(c, 2048);
+  Ext2DebugCharBuffer(c, 1024);
  
   return EFI_SUCCESS;
 }

@@ -308,4 +308,7 @@ ext2fs_blkatoff(struct vnode *vp, off_t offset, char **res,
 
 int
 ext2fs_readdir(void *v);
+
+int
+ext2fs_lookup(void *v);
 #endif

@@ -427,7 +427,6 @@ searchloop:
                     (dirchk &&
                      ext2fs_dirbadentry(vdp, ep, entryoffsetinblock))) {
                         int i;
-
                         ufs_dirbad(dp, dp->i_offset, "mangled entry");
                         i = dirblksiz - (entryoffsetinblock & (dirblksiz - 1));
                         dp->i_offset += i;
@@ -443,7 +442,6 @@ searchloop:
                  */
                 if (slotstatus != FOUND) {
                         int size = fs2h16(ep->e2d_reclen);
-
                         if (ep->e2d_ino != 0)
                                 size -= EXT2FS_DIRSIZ(ep->e2d_namlen);
                         if (size > 0) {

@@ -122,7 +122,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 #define VEXEC 0
 #define VOP_ACCESS(a,b,c) 0
-#define cache_lookup(a,b,c) 0
+#define cache_lookup(a,b,c) -1
 
 /*
  * namei operations

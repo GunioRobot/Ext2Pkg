@@ -96,9 +96,32 @@ Ext2OpenVolume (
 
   error = ext2fs_readdir(&ap);
   DEBUG ((EFI_D_INFO, "\n Bytes left unread, filesize < than uio_resid : %d\n",uio.uio_resid));
-  DEBUG ((EFI_D_INFO, "\n File content: \n"));
+  DEBUG ((EFI_D_INFO, "\n List directory: \n"));
   Ext2DebugCharBuffer(c, 1024);
- 
+  FreePool (c);
+  
+  struct componentname cnp;
+  struct vop_lookup_args vla;
+  EXT2_EFI_FILE_PRIVATE *a_vpp;
+  char *path = "/plm/plm";
+  
+  cnp.cn_nameiop = LOOKUP;
+  cnp.cn_flags = RDONLY;
+  
+  cnp.cn_pnbuf = path;
+  cnp.cn_nameptr = &path[1];
+  cnp.cn_namelen = 3;
+  
+  vla.a_dvp = PrivateFile;
+  vla.a_vpp = &a_vpp;
+  vla.a_cnp = &cnp;
+  
+  DEBUG((EFI_D_INFO, "\n Lookup directory \"plm\" in / (root) directory \n"));
+  error = ext2fs_lookup(&vla);
+  DEBUG((EFI_D_INFO, "Dinode/Inode for component name if found\n"));
+  Ext2DebugDinode(a_vpp->File->i_din.e2fs_din);
+  DEBUG((EFI_D_INFO, "Inode number %d\n", a_vpp->File->i_number));
+  
   return EFI_SUCCESS;
 }
 

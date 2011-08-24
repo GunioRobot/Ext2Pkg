@@ -89,6 +89,7 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 **/
 
+#define _BMAP_BREAD_
 #include "inode.h"
 #include "Ext2.h"
 #endif
@@ -160,3 +161,7 @@ ext2fs_itimes(struct inode *ip, const struct timespec *acc,
 	ip->i_flag &= ~(IN_ACCESS | IN_CHANGE | IN_UPDATE | IN_MODIFY);
 }
 */
+
+#ifdef _EXT2_TIANOCORE_SOURCE
+#undef _BMAP_BREAD_
+#endif

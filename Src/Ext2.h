@@ -320,6 +320,7 @@ VOID Ext2DebugDirect (IN struct ext2fs_direct *dir);
 
 VOID Ext2DebugCharBuffer (VOID *buf, INTN size);
 
+VOID Ext2DebugListTree (EXT2_DEV *Private, EXT2_EFI_FILE_PRIVATE *PrivateFile);
 #define struct
 int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp);
 #undef struct

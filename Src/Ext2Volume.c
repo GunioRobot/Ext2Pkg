@@ -25,26 +25,27 @@ Ext2OpenVolume (
   EXT2_DEV *Private;
   EXT2_EFI_FILE_PRIVATE *PrivateFile;
 //  EFI_FILE_PROTOCOL *fot;
-  EXT2_EFI_FILE_PRIVATE *pfile;
+//  EXT2_EFI_FILE_PRIVATE *pfile;
  // char buffer[1024];
   //struct m_ext2fs *fs;
   int error;
-  int size = 100;
-  
+  EFI_TPL OldTpl;
+//  int size = 100;
+  OldTpl = gBS->RaiseTPL (TPL_CALLBACK);
   Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(This);
 
   DEBUG((EFI_D_INFO, "openvol sb again\n"));
   Ext2DebugSb(Private);
   
-  //if (Private->Root == NULL) DEBUG((EFI_D_INFO,"openvol plm root \n"));
-
+  //if (Private->Root == NULL) DEBUG((EFI_D_INFO,"openvol plm root
   // ext2fs_mountroot(Private);
-  PrivateFile = Private->Root;
+
   DEBUG ((EFI_D_INFO, "openvol before\n"));
   error=ext2fs_vget(Private, 2, &PrivateFile);
   if (error != 0)
     return EFI_UNSUPPORTED;
 
+  *Root = &PrivateFile->EfiFile;
   Private->Root->Filename = AllocateZeroPool(2*sizeof(CHAR16));
   Private->Root->Filename[0] = '\\';
   Private->Root->Filename[1] = '\0';
@@ -53,7 +54,9 @@ Ext2OpenVolume (
   Ext2DebugSb (Private);
   Ext2DebugDinode (PrivateFile->File->i_din.e2fs_din);
 
+  //Ext2DebugListTree(Private, PrivateFile);
 
+/*
   error=ext2fs_vget(Private, 34820, &pfile);
   Ext2DebugDinode (pfile->File->i_din.e2fs_din);
 
@@ -79,7 +82,6 @@ Ext2OpenVolume (
   Ext2DebugCharBuffer(uio_iov.iov_base, 100);
 
   FreePool (uio_iov.iov_base);
-
   struct vop_readdir_args ap;
   int a_eofflag;
   off_t *a_cookies;
@@ -103,29 +105,30 @@ Ext2OpenVolume (
   DEBUG ((EFI_D_INFO, "\n List directory: \n"));
   Ext2DebugCharBuffer(c, 1024);
   FreePool (c);
+*/
+//struct componentname cnp;
+//struct vop_lookup_args vla;
+//EXT2_EFI_FILE_PRIVATE *a_vpp;
+//char *path = "/plm/plm";
   
-  struct componentname cnp;
-  struct vop_lookup_args vla;
-  EXT2_EFI_FILE_PRIVATE *a_vpp;
-  char *path = "/plm/plm";
+//cnp.cn_nameiop = LOOKUP;
+ //np.cn_flags = RDONLY;
   
-  cnp.cn_nameiop = LOOKUP;
-  cnp.cn_flags = RDONLY;
+//cnp.cn_pnbuf = path;
+ //np.cn_nameptr = &path[1];
+  //p.cn_namelen = 3;
   
-  cnp.cn_pnbuf = path;
-  cnp.cn_nameptr = &path[1];
-  cnp.cn_namelen = 3;
+//vla.a_dvp = PrivateFile;
+//vla.a_vpp = &a_vpp;
+ //la.a_cnp = &cnp;
   
-  vla.a_dvp = PrivateFile;
-  vla.a_vpp = &a_vpp;
-  vla.a_cnp = &cnp;
-  
-  DEBUG((EFI_D_INFO, "\n Lookup directory \"plm\" in / (root) directory \n"));
-  error = ext2fs_lookup(&vla);
-  DEBUG((EFI_D_INFO, "Dinode/Inode for component name if found\n"));
-  Ext2DebugDinode(a_vpp->File->i_din.e2fs_din);
-  DEBUG((EFI_D_INFO, "Inode number %d\n", a_vpp->File->i_number));
-  
+//DEBUG((EFI_D_INFO, "\n Lookup directory \"plm\" in / (root) directory \n"));
+//error = ext2fs_lookup(&vla);
+//DEBUG((EFI_D_INFO, "Dinode/Inode for component name if found\n"));
+//Ext2DebugDinode(a_vpp->File->i_din.e2fs_din);
+//DEBUG((EFI_D_INFO, "Inode number %d\n", a_vpp->File->i_number));
+
+  gBS->RestoreTPL(OldTpl);
   return EFI_SUCCESS;
 }
 

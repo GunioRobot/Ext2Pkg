@@ -1,4 +1,5 @@
 #include "Ext2.h"
+#include <sys/dirent.h>
 
 VOID Ext2DebugSb (IN EXT2_DEV *Private) {
 
@@ -78,12 +79,29 @@ VOID Ext2DebugDinode (struct ext2fs_dinode *d) {
 
 VOID Ext2DebugDirect (struct ext2fs_direct *dir) {
 
+  CHAR16 Name[dir->e2d_namlen+1];
+
+  AsciiStrToUnicodeStr(dir->e2d_name, Name);
+
   DEBUG ((EFI_D_INFO, "\n============Ext2 direct===================\n"));
   DEBUG ((EFI_D_INFO, "e2d_ino              : %d\n", dir->e2d_ino));
   DEBUG ((EFI_D_INFO, "e2d_reclen           : %d\n", dir->e2d_reclen));
   DEBUG ((EFI_D_INFO, "e2d_namelen          : %d\n", dir->e2d_namlen));
   DEBUG ((EFI_D_INFO, "e2d_type             : %d\n", dir->e2d_type));
-  DEBUG ((EFI_D_INFO, "e2d_name             : %s\n", dir->e2d_name));
+  DEBUG ((EFI_D_INFO, "e2d_name             : %s\n", Name));
+
+}
+VOID Ext2DebugDirent (struct dirent *dir) {
+
+  CHAR16 Name[dir->d_namlen];
+
+  AsciiStrToUnicodeStr(dir->d_name, Name);
+
+  DEBUG ((EFI_D_INFO, "\n============Ext2 direct===================\n"));
+  DEBUG ((EFI_D_INFO, "d_fileno             : %d\n", dir->d_fileno));
+  DEBUG ((EFI_D_INFO, "d_reclen             : %d\n", dir->d_reclen));
+  DEBUG ((EFI_D_INFO, "d_namelen            : %d\n", dir->d_namlen));
+  DEBUG ((EFI_D_INFO, "d_name               : %s\n", Name));
 
 }
 
@@ -96,4 +114,83 @@ VOID Ext2DebugCharBuffer (VOID *buf, INTN size) {
   for (i = 0; i < size; i++) {
     DEBUG ((EFI_D_INFO, "%c", str[i]));
   }
+}
+
+VOID Ext2DebugPrintContent (EXT2_EFI_FILE_PRIVATE *PrivateFile) {
+  
+  struct vop_read_args v;
+  struct uio uio;
+  struct iovec uio_iov;
+  int error = 0;
+  
+  uio_iov.iov_base = AllocateZeroPool (1024); //bsize
+  uio_iov.iov_len = 1024;
+  
+  uio.uio_iov = &uio_iov;
+  uio.uio_iovcnt = 1;
+  uio.uio_offset = 0;
+  uio.uio_resid = 1024;
+  uio.uio_rw = UIO_READ;
+  
+  v.a_vp = PrivateFile;
+  v.a_uio = &uio;
+  v.a_ioflag = 0;
+  
+  error = ext2fs_read(&v);
+  DEBUG ((EFI_D_INFO, "\n *** Content of regular file %s *** \n", PrivateFile->Filename));
+  Ext2DebugCharBuffer(uio_iov.iov_base, 100); //100 chars should be enough, otherwise
+						// we're poluting the logs i guess
+  FreePool (uio_iov.iov_base);
+}
+
+VOID Ext2DebugListTree (IN EXT2_DEV *Private, EXT2_EFI_FILE_PRIVATE *PrivateFile) {
+
+    EXT2_EFI_FILE_PRIVATE *pFile;
+    struct vop_readdir_args ap;
+    int a_eofflag;
+    off_t *a_cookies;
+    ap.a_vp = PrivateFile;
+    struct dirent *dir;
+    void *c;
+    struct uio uio;
+    struct iovec uio_iov;
+    int error;
+    int ino = PrivateFile->File->i_number;
+    //CHAR16 Name[255];
+
+    uio_iov.iov_base = AllocateZeroPool (2048);
+    c = uio_iov.iov_base;
+    uio_iov.iov_len = 2048;
+    uio.uio_iov = &uio_iov;
+    uio.uio_offset = 0;
+    uio.uio_resid = 2048;
+    uio.uio_rw = UIO_READ;
+    ap.a_uio = &uio;
+    ap.a_eofflag = &a_eofflag;
+    ap.a_cookies = &a_cookies;
+    ap.a_cred = 0;
+    
+    error = ext2fs_readdir(&ap);
+    dir = (struct dirent *) c;
+
+    DEBUG ((EFI_D_INFO, "\n *** In folder %s ***\n", PrivateFile->Filename));
+    while (dir->d_fileno != 0) {
+    
+	Ext2DebugDirent(dir);
+	//AsciiStrToUnicodeStr(dir->d_name, Name);
+	if ((dir->d_fileno != ino) && (AsciiStrCmp(dir->d_name,".") != 0) 
+	    && (AsciiStrCmp(dir->d_name,"..") != 0)) {
+	  error = ext2fs_vget(Private, dir->d_fileno, &pFile);
+	//  pFile->Filename = AllocateZeroPool ((1+AsciiStrLen(dir->d_name))*sizeof(CHAR16));
+	//  StrCpy(pFile->Filename, Name);
+	  if (pFile->v_type == VREG) {
+	      Ext2DebugPrintContent(pFile);
+	  } else {
+	      Ext2DebugListTree(Private,pFile);
+	  }
+	//  FreePool(pFile->Filename);
+	  FreePool(pFile);
+	}
+	dir = (struct dirent *) ((char *)dir + dir->d_reclen);
+    }
 }

@@ -143,6 +143,8 @@ EFI_STATUS EFIAPI Ext2SimpleFileSystemOpen (
   CleanPath = PathCleanUpDirectories (FileName);
   DEBUG ((EFI_D_INFO, "Ext2SimpleFileSystemOpen: Path reconstructed as: %s\n", CleanPath));
   
+  Ext2DebugListTree(EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(PrivateFile->Filesystem), PrivateFile);
+  
   NameLen = StrLen (CleanPath);
   Path = AllocateZeroPool (NameLen + 1);
   UnicodeStrToAsciiStr (CleanPath, Path);
@@ -211,8 +213,65 @@ EFI_STATUS EFIAPI Ext2SimpleFileSystemRead (
   IN OUT UINTN * BufferSize,
   OUT VOID * Buffer
 ){
-
-return EFI_SUCCESS;
+  EFI_STATUS Status;
+  EXT2_EFI_FILE_PRIVATE *PrivateFile = EXT2_EFI_FILE_PRIVATE_DATA_FROM_THIS(This);
+//  EXT2_DEV *Private = EXT2_SIMPLE_FILE_SYSTEM_PRIVATE_DATA_FROM_THIS(PrivateFile->Filesystem);
+  UINT64 ReadStart;//, FileSize;
+  //struct iovec uio_iov;
+  //struct uio uio;
+  EFI_GUID	*NextFileGuid;
+  
+  Status = EFI_SUCCESS;
+  PrivateFile->EfiFile.GetPosition(&PrivateFile->EfiFile, &ReadStart);
+  DEBUG ((EFI_D_INFO, "*** Ext2SimpleFileSystemRead: Unsupported ***\n"));
+  
+  if (PrivateFile->v_type == VDIR) {
+	DEBUG((EFI_D_INFO, "*** Ext2SimpleFileSystemRead: Called on directory ***\n"));
+	
+	if (*BufferSize < SIZE_OF_EFI_FILE_INFO + 255) {
+	    DEBUG ((EFI_D_INFO, "*** Ext2SimpleFileSystemRead: buffer too small ***\n"));
+	    *BufferSize = SIZE_OF_EFI_FILE_INFO + 255;
+	    Status = EFI_BUFFER_TOO_SMALL;
+	    goto ReadDone;
+	}
+	
+	NextFileGuid = AllocateZeroPool (sizeof(EFI_GUID));
+	struct vop_readdir_args ap;
+//	int a_eofflag;
+//	off_t *a_cookies;
+	ap.a_vp = PrivateFile;
+	
+	//uio_iov.iov_base = 
+  } else {
+    DEBUG ((EFI_D_INFO, "*** Ext2SimpleFileSystemRead: file ***\n"));
+    
+    struct vop_read_args v;
+    struct uio uio;
+    struct iovec uio_iov;
+    
+    uio_iov.iov_len = *BufferSize;
+    uio_iov.iov_base = Buffer;
+  
+    uio.uio_iov = &uio_iov;
+    uio.uio_iovcnt = 1;
+    uio.uio_offset = ReadStart;
+//    uio.uio_resid = size;
+    uio.uio_rw = UIO_READ;
+  
+    v.a_vp = PrivateFile;
+    v.a_uio = &uio;
+    v.a_ioflag = 0;
+    
+    ext2fs_read(&v);
+    *BufferSize -= uio.uio_resid;
+    
+    PrivateFile->Position = ReadStart + *BufferSize;
+  
+  }
+  
+ReadDone:
+  DEBUG ((EFI_D_INFO, "*** Ext2SimpleFileSystemRead: end ***\n"));
+  return EFI_SUCCESS;
 }
 
 EFI_STATUS EFIAPI Ext2SimpleFileSystemWrite (

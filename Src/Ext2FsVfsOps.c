@@ -354,7 +354,6 @@ ext2fs_mountfs(struct vnode *devvp, struct mount *mp)
 	if (error)
 		goto out;
 	fs = (struct ext2fs *)bp->b_data;
-	
       DEBUG ((EFI_D_INFO, "mountrootf 4\n"));
 	error = ext2fs_checksb(fs, ronly);
 	if (error)
@@ -416,7 +415,6 @@ ext2fs_mountfs(struct vnode *devvp, struct mount *mp)
 		brelse(bp, 0);
 		bp = NULL;
 	}
-
       DEBUG ((EFI_D_INFO, "mountrootf 9\n"));
 	return (0);
 
@@ -479,9 +477,13 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         e2fs_iload((struct ext2fs_dinode *)cp, ip->i_din.e2fs_din);
         brelse(bp, 0);
         
+        ip->i_mode = ip->i_din.e2fs_din->e2di_mode;
+        
         if ((ip->i_mode & IFMT) == IFDIR) {
+    	    DEBUG((EFI_D_INFO, "VDIR ino %d\n",ip->i_number));
     	    vp->v_type = VDIR;
     	} else {
+    	    DEBUG((EFI_D_INFO, "VREG ino %d\n",ip->i_number));
     	    vp->v_type = VREG;
     	}
 

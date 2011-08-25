@@ -478,6 +478,12 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         ip->i_din.e2fs_din = malloc (sizeof(struct ext2fs_dinode), 0 ,0);
         e2fs_iload((struct ext2fs_dinode *)cp, ip->i_din.e2fs_din);
         brelse(bp, 0);
+        
+        if ((ip->i_mode & IFMT) == IFDIR) {
+    	    vp->v_type = VDIR;
+    	} else {
+    	    vp->v_type = VREG;
+    	}
 
         /* If the inode was deleted, reset all fields */
         if (ip->i_e2fs_dtime != 0) {

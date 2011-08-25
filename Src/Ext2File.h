@@ -19,12 +19,15 @@ typedef struct {
 
   enum vtype v_type;
 
-  CHAR16           *FileName;
+  CHAR16           *Filename;
 
   struct inode *File;
   struct dirent *Dir;
+  UINT64 Position;
 
 } EXT2_EFI_FILE_PRIVATE;
+
+#define EXT2_MAX_FILE_SIZE(bsize) ((uint64_t)0x80000000 * (bsize) - 1)
 
 #define EXT2_EFI_FILE_PRIVATE_DATA_FROM_THIS(a) \
 	CR (a, \

@@ -124,6 +124,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #define VOP_ACCESS(a,b,c) 0
 #define cache_lookup(a,b,c) -1
 
+#define IFDIR EXT2_IFDIR
 /*
  * namei operations
  */

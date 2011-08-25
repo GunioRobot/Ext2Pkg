@@ -23,6 +23,7 @@ EXT2_EFI_FILE_PRIVATE mExt2File = {
   NULL,
   NULL,
   NULL,
+  0
 };
 
 #define struct

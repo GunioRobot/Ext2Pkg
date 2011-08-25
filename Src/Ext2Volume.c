@@ -44,7 +44,11 @@ Ext2OpenVolume (
   error=ext2fs_vget(Private, 2, &PrivateFile);
   if (error != 0)
     return EFI_UNSUPPORTED;
-  
+
+  Private->Root->Filename = AllocateZeroPool(2*sizeof(CHAR16));
+  Private->Root->Filename[0] = '\\';
+  Private->Root->Filename[1] = '\0';
+
   DEBUG ((EFI_D_INFO, "openvol after\n"));
   Ext2DebugSb (Private);
   Ext2DebugDinode (PrivateFile->File->i_din.e2fs_din);

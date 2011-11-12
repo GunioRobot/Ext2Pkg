@@ -2,7 +2,7 @@
 #include "Ext2File.h"
 #include "ext2fs_dinode.h"
 
-EXT2_EFI_FILE_PRIVATE mExt2File = {
+EXT2_EFI_FILE_PRIVATE mExt2File_t = {
   EXT2_FILE_PRIVATE_DATA_SIGNATURE,
   NULL,
   {
@@ -34,7 +34,7 @@ int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp)
 
   vp = AllocateCopyPool (
            sizeof (struct vnode),
-           (VOID *) &mExt2File);
+           (VOID *) &mExt2File_t);
 
   if (vp == NULL) {
     DEBUG ((EFI_D_INFO, "getnewvnode: Alloc error \n"));

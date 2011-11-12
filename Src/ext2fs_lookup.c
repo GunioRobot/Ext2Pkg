@@ -760,6 +760,61 @@ ext2fs_dirbadentry(struct vnode *dp,
         return error_msg == NULL ? 0 : 1;
 }
 
+/*
+ * Check if a directory is empty or not.
+ * Inode supplied must be locked.
+ *
+ * Using a struct dirtemplate here is not precisely
+ * what we want, but better than using a struct ext2fs_direct.
+ *
+ * NB: does not handle corrupted directories.
+ */
+int
+ext2fs_dirempty(struct inode *ip, ino_t parentino, kauth_cred_t vcred)
+{
+        off_t off;
+        struct ext2fs_dirtemplate dbuf;
+        struct ext2fs_direct *dp = (struct ext2fs_direct *)&dbuf;
+        int error, namlen;
+        size_t count;
+
+#define MINDIRSIZ (sizeof (struct ext2fs_dirtemplate) / 2)
+
+        for (off = 0; off < ext2fs_size(ip); off += fs2h16(dp->e2d_reclen)) {
+                error = vn_rdwr(UIO_READ, ITOV(ip), (void *)dp, MINDIRSIZ, off,
+                   UIO_SYSSPACE, IO_NODELOCKED, vcred, &count, NULL);
+                /*
+                 * Since we read MINDIRSIZ, residual must
+                 * be 0 unless we're at end of file.
+                 */
+                if (error || count != 0)
+                        return (0);
+                /* avoid infinite loops */
+                if (dp->e2d_reclen == 0)
+                        return (0);
+                /* skip empty entries */
+                if (dp->e2d_ino == 0)
+                        continue;
+                /* accept only "." and ".." */
+                namlen = dp->e2d_namlen;
+                if (namlen > 2)
+                        return (0);
+                if (dp->e2d_name[0] != '.')
+                        return (0);
+                /*
+                 * At this point namlen must be 1 or 2.
+                 * 1 implies ".", 2 implies ".." if second
+                 * char is also "."
+                 */
+                if (namlen == 1)
+                        continue;
+                if (dp->e2d_name[1] == '.' && fs2h32(dp->e2d_ino) == parentino)
+                        continue;
+                return (0);
+        }
+        return (1);
+}
+
 
 /*
  * Check if source directory is in the path of the target directory.

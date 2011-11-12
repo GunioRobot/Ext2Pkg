@@ -318,6 +318,10 @@ VOID Ext2DebugDinode (IN struct ext2fs_dinode *d);
 
 VOID Ext2DebugDirect (IN struct ext2fs_direct *dir);
 
+VOID Ext2DebugDirent (IN struct dirent *dir);
+
+VOID Ext2DebugPrintContent (EXT2_EFI_FILE_PRIVATE *PrivateFile);
+
 VOID Ext2DebugCharBuffer (VOID *buf, INTN size);
 
 VOID Ext2DebugListTree (EXT2_DEV *Private, EXT2_EFI_FILE_PRIVATE *PrivateFile);

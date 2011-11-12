@@ -1,5 +1,5 @@
 /** @file
-  Ext2 Driver Reference EDKII Module  
+  Ext2 Driver Reference EDKII Module
 
   Based on MdeModulePkg/Universal/Disk/PartitionDxe/
 
@@ -166,15 +166,15 @@ Ext2Start (
     if (Private == NULL) {
       DEBUG ((EFI_D_INFO, "Ext2Start: error AllocateZeroPool\n"));
       return EFI_OUT_OF_RESOURCES;
-    }	
+    }
 
     Private->Handle = ControllerHandle;
     Private->BlockIo = BlockIo;
     Private->DiskIo = DiskIo;
     Private->Signature = EXT2_PRIVATE_DATA_SIGNATURE;
     Private->Filesystem.Revision = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION;
-    Private->Filesystem.OpenVolume = Ext2OpenVolume;
     Private->Root = NULL;
+
     DEBUG ((EFI_D_INFO, "Ext2Start: before ext2fs_mountroot ()\n"));
     if (ext2fs_mountroot (Private) != 0)
      {
@@ -187,14 +187,14 @@ Ext2Start (
         Status = EFI_UNSUPPORTED;;
         goto Exit;
      }
-   
+
+    Private->Filesystem.OpenVolume = Ext2OpenVolume;
     DEBUG ((EFI_D_INFO, "Ext2Start: after ext2fs_mountroot ()\n"));
-    Ext2DebugSb(Private);
 
     Status = gBS->InstallMultipleProtocolInterfaces (
 			&Private->Handle,
 			&gEfiSimpleFileSystemProtocolGuid,
-			&Private->Filesystem,	
+			&Private->Filesystem,
 			NULL
 			);
 
@@ -202,15 +202,15 @@ Ext2Start (
   //
   // In the case that the driver is already started (OpenStatus == EFI_ALREADY_STARTED),
   // the DiskIoProtocol are not actually opened by the driver. So don't try to close it.
-  // Otherwise, we will break the dependency between the controller and the driver set 
+  // Otherwise, we will break the dependency between the controller and the driver set
   // up before.
   //
-  // In the case that when the media changes on a device it will Reinstall the 
+  // In the case that when the media changes on a device it will Reinstall the
   // BlockIo interaface. This will cause a call to our Stop(), and a subsequent
   // reentrant call to our Start() successfully. We should leave the device open
   // when this happen. The "media change" case includes either the status is
-  // EFI_MEDIA_CHANGED or it is a "media" to "no media" change. 
-  //  
+  // EFI_MEDIA_CHANGED or it is a "media" to "no media" change.
+  //
   if (EFI_ERROR (Status) &&
       !EFI_ERROR (OpenStatus) &&
       Status != EFI_MEDIA_CHANGED &&

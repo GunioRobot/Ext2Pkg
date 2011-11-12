@@ -50,3 +50,6 @@
   INTEL:*_*_*_CC_FLAGS          = /D _NETBSD_SOURCE /D _POSIX_SOURCE /D _EXT2_TIANOCORE_SOURCE
    MSFT:*_*_*_CC_FLAGS          = /D _NETBSD_SOURCE /D _POSIX_SOURCE /D _EXT2_TIANOCORE_SOURCE
     GCC:*_*_*_CC_FLAGS          = -D_NETBSD_SOURCE -D_POSIX_SOURCE -D_EXT2_TIANOCORE_SOURCE
+
+[PcdsFixedAtBuild.common]
+  gEfiMdePkgTokenSpaceGuid.PcdMaximumLinkedListLength|1000000

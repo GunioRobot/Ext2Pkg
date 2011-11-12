@@ -314,4 +314,5 @@ ext2fs_readdir(void *v);
 
 int
 ext2fs_lookup(void *v);
+
 #endif

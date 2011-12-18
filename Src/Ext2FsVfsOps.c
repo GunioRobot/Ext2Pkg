@@ -306,13 +306,13 @@ ext2fs_mountroot(struct mount *mp)
         DEBUG ((EFI_D_INFO, "mountroot 1\n"));
         if (device_class(root_device) != DV_DISK)
     		return (ENONDEV);
-        
+
         DEBUG ((EFI_D_INFO, "mountroot 2\n"));
         if ((error = vfs_rootmountalloc(MOUNT_EXT2FS, "root_device", &mp))) {
     		vrele(rootvp);
                 return (error);
         }
-        
+
         DEBUG ((EFI_D_INFO, "mountroot 3\n"));
         if ((error = ext2fs_mountfs(rootvp, mp)) != 0) {
     		vfs_unbusy(mp,false,NULL);
@@ -360,7 +360,7 @@ ext2fs_mountfs(struct vnode *devvp, struct mount *mp)
 		goto out;
 	mp->fs = malloc(sizeof(struct m_ext2fs), M_UFSMNT, M_WAITOK);
 	memset(mp->fs, 0, sizeof(struct m_ext2fs));
-	
+
       DEBUG ((EFI_D_INFO, "mountrootf 5\n"));
 	e2fs_sbload((struct ext2fs *)bp->b_data, &mp->fs->e2fs);
 	brelse(bp, 0);
@@ -398,7 +398,7 @@ ext2fs_mountfs(struct vnode *devvp, struct mount *mp)
 	m_fs->e2fs_gd = malloc(m_fs->e2fs_ngdb * m_fs->e2fs_bsize,
 	    M_UFSMNT, M_WAITOK);
 	for (i = 0; i < m_fs->e2fs_ngdb; i++) {
-	
+
       DEBUG ((EFI_D_INFO, "mountrootf 8\n"));
 		error = bread(devvp ,
 		    fsbtodb(m_fs, m_fs->e2fs.e2fs_first_dblock +
@@ -476,9 +476,9 @@ ext2fs_vget(struct mount *mp, ino_t ino, struct vnode **vpp)
         ip->i_din.e2fs_din = malloc (sizeof(struct ext2fs_dinode), 0 ,0);
         e2fs_iload((struct ext2fs_dinode *)cp, ip->i_din.e2fs_din);
         brelse(bp, 0);
-        
+
         ip->i_mode = ip->i_din.e2fs_din->e2di_mode;
-        
+
         if ((ip->i_mode & IFMT) == IFDIR) {
     	    DEBUG((EFI_D_INFO, "VDIR ino %d\n",ip->i_number));
     	    vp->v_type = VDIR;

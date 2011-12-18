@@ -40,7 +40,7 @@ int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp)
     DEBUG ((EFI_D_INFO, "getnewvnode: Alloc error \n"));
     return 1;
   }
-  
+
   vp->Filesystem = &mp->Filesystem;
 
   if (c == 2) {
@@ -50,7 +50,7 @@ int getnewvnode (int a, struct mount *mp, int c, void *p, struct vnode **vpp)
     *vpp = vp;
     return 0;
   }
-  
+
   vp->v_type = VREG;
   *vpp = vp;
   return 0;
@@ -78,7 +78,7 @@ int uiomove(void *buf, size_t n, struct uio *uio)
     size_t cnt;
     int error = 0;
     char *cp = buf;
-    
+
     while (n > 0 && uio->uio_resid) {
 	iov = uio->uio_iov;
 	cnt = iov->iov_len;
@@ -89,7 +89,7 @@ int uiomove(void *buf, size_t n, struct uio *uio)
 	}
 	if (cnt > 0)
 	    cnt = n;
-	    
+
 	if (uio->uio_rw == UIO_READ) {
 	    error = copyout_vmspace (vm, cp, iov->iov_base, cnt);
 	} else {

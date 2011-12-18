@@ -18,11 +18,11 @@
   PACKAGE_NAME                   = Ext2Pkg
   PACKAGE_GUID                   = 7e609b37-ccfb-4107-b976-c2b3d10b29cb
   PACKAGE_VERSION                = 0.1
-  
-  
+
+
 [Includes]
   Include
-  
+
 [Includes.IA32]
   Include/Ia32
 

@@ -186,7 +186,7 @@ ext2fs_read(void *v)
 		size = fs->e2fs_bsize;
 		blkoffset = blkoff(fs, uio->uio_offset);
 		xfersize = fs->e2fs_bsize - blkoffset;
-		
+
 		if (uio->uio_resid < xfersize)
 			xfersize = uio->uio_resid;
 		if (bytesinfile < xfersize)
@@ -214,7 +214,7 @@ ext2fs_read(void *v)
 				break;
 			xfersize = size;
 		}
-		
+
 		error = uiomove((char *)bp->b_data + blkoffset, xfersize, uio);
 		if (error)
 			break;

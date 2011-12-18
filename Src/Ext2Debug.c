@@ -12,7 +12,7 @@ VOID Ext2DebugSb (IN EXT2_DEV *Private) {
   DEBUG ((EFI_D_INFO, "\n===============Superblock===================\n"));
   DEBUG ((EFI_D_INFO, "\next2fs sb size    : %d\n", sizeof (struct ext2fs)));
   DEBUG ((EFI_D_INFO, "e2fs_icount	   : %d\n", sb->e2fs_icount));
-  DEBUG ((EFI_D_INFO, "e2fs_bcount         : %d\n", sb->e2fs_bcount));  
+  DEBUG ((EFI_D_INFO, "e2fs_bcount         : %d\n", sb->e2fs_bcount));
   DEBUG ((EFI_D_INFO, "e2fs_rbcount        : %d\n", sb->e2fs_rbcount));
   DEBUG ((EFI_D_INFO, "e2fs_fbcount        : %d\n", sb->e2fs_fbcount));
   DEBUG ((EFI_D_INFO, "e2fs_first_dblock   : %d\n", sb->e2fs_first_dblock));
@@ -117,25 +117,25 @@ VOID Ext2DebugCharBuffer (VOID *buf, INTN size) {
 }
 
 VOID Ext2DebugPrintContent (EXT2_EFI_FILE_PRIVATE *PrivateFile) {
-  
+
   struct vop_read_args v;
   struct uio uio;
   struct iovec uio_iov;
   int error = 0;
-  
+
   uio_iov.iov_base = AllocateZeroPool (1024); //bsize
   uio_iov.iov_len = 1024;
-  
+
   uio.uio_iov = &uio_iov;
   uio.uio_iovcnt = 1;
   uio.uio_offset = 0;
   uio.uio_resid = 1024;
   uio.uio_rw = UIO_READ;
-  
+
   v.a_vp = PrivateFile;
   v.a_uio = &uio;
   v.a_ioflag = 0;
-  
+
   error = ext2fs_read(&v);
   DEBUG ((EFI_D_INFO, "\n *** Content of regular file %s *** \n", PrivateFile->Filename));
   Ext2DebugCharBuffer(uio_iov.iov_base, 100); //100 chars should be enough, otherwise
@@ -169,16 +169,16 @@ VOID Ext2DebugListTree (IN EXT2_DEV *Private, EXT2_EFI_FILE_PRIVATE *PrivateFile
     ap.a_eofflag = &a_eofflag;
     ap.a_cookies = &a_cookies;
     ap.a_cred = 0;
-    
+
     error = ext2fs_readdir(&ap);
     dir = (struct dirent *) c;
 
     DEBUG ((EFI_D_INFO, "\n *** In folder %s ***\n", PrivateFile->Filename));
     while (dir->d_fileno != 0) {
-    
+
 	Ext2DebugDirent(dir);
 	//AsciiStrToUnicodeStr(dir->d_name, Name);
-	if ((dir->d_fileno != ino) && (AsciiStrCmp(dir->d_name,".") != 0) 
+	if ((dir->d_fileno != ino) && (AsciiStrCmp(dir->d_name,".") != 0)
 	    && (AsciiStrCmp(dir->d_name,"..") != 0)) {
 	  error = ext2fs_vget(Private, dir->d_fileno, &pFile);
 	//  pFile->Filename = AllocateZeroPool ((1+AsciiStrLen(dir->d_name))*sizeof(CHAR16));

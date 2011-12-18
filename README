@@ -9,7 +9,7 @@ build OvmfPkg http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=Ho
 in the folder where you copied the bios/video image.
 
 qemu-img create -f raw disk.img 100M
-mkfs.ext2 -F disk.img 
+mkfs.ext2 -F disk.img
 qemu -L . -hda disk.img -serial stdio
 
 Enjoy.

@@ -42,7 +42,7 @@
  *
  * A directory entry has a struct dirent at the front of it, containing its
  * inode number, the length of the entry, and the length of the name
- * contained in the entry.  These are followed by the name padded to 
+ * contained in the entry.  These are followed by the name padded to
  * _DIRENT_ALIGN() byte boundary with null bytes.  All names are guaranteed
  * NUL terminated.  The maximum length of a name in a directory is MAXNAMLEN.
  */
@@ -80,7 +80,7 @@ struct dirent {
  */
 #define _DIRENT_ALIGN(dp) (sizeof((dp)->d_fileno) - 1)
 /*
- * The _DIRENT_NAMEOFF macro returns the offset of the d_name field in 
+ * The _DIRENT_NAMEOFF macro returns the offset of the d_name field in
  * struct dirent
  */
 #if __GNUC_PREREQ__(4, 0)

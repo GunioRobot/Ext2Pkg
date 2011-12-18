@@ -101,7 +101,7 @@ struct ext2fs_inode_ext {
 struct inode {
 //	LIST_ENTRY(inode) i_hash;/* Hash chain.
 	EFI_FILE_PROTOCOL *vp;
-	
+
 	u_int32_t i_flag;	/* flags, see below */
 	ino_t	  i_number;	/* The identity of the inode. */
 
